@@ -1,0 +1,15 @@
+{
+"name": "fido2twi",
+"bin": "./fido2twi.js",
+"preferGlobal": true,
+"main": "f2t-core.js",
+"version": "0.0.1",
+"description": "Posts Fidonet messages to Twitter.",
+"keywords": ["Fidonet", "Fido", "Twitter"],
+"author": { "name": "Mithgol the Webmaster" },
+"license": "MIT",
+"repository": {
+   "type": "git",
+   "url": "https://github.com/Mithgol/node-fido2twi.git"
+}
+}
