@@ -1,0 +1,15 @@
+{
+"node": true,
+"bitwise": true,
+"eqeqeq": true,
+"esversion": 6,
+"forin": true,
+"immed": true,
+"indent": 3,
+"latedef": true,
+"noarg": true,
+"undef": true,
+"unused": true,
+"trailing": true,
+"maxlen": 78
+}
