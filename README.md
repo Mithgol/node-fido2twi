@@ -1,6 +1,6 @@
 [![(a histogram of downloads)](https://nodei.co/npm-dl/fido2twi.png?height=3)](https://npmjs.org/package/fido2twi)
 
-This application (`fido2twi`) post Fidonet messages to Twitter. (Its name is derived from loosely abbreviated words “Fido to Twitter”.)
+This application (`fido2twi`) posts Fidonet messages to Twitter. (Its name is derived from loosely abbreviated words “Fido to Twitter”. It does not imply any endorsement, sponsorship, or association with Twitter.)
 
 This application is written in JavaScript and requires [Node.js](http://nodejs.org/) to run. Because it uses ECMAScript 2015 features, a relatively recent Node.js (version 4.2.2 or newer) is required. The application is tested on the most recent stable version of Node.js.
 
