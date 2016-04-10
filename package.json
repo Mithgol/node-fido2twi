@@ -14,6 +14,7 @@
 },
 "dependencies": {
    "ciel": "~0.2.0",
+   "fidoconfig": "~0.2.5",
    "fidonet-jam": "~3.8.14",
    "fiunis": "~2.1.3",
    "simteconf": "~0.6.15",

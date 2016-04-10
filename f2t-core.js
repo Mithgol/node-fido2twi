@@ -1,4 +1,5 @@
 var path = require('path');
+var fidoconfig = require('fidoconfig');
 var simteconf = require('simteconf');
 
 module.exports = () => {
@@ -7,17 +8,7 @@ module.exports = () => {
       { skipNames: ['//', '#'] }
    );
    // Read HPT areas:
-   var encodingHPT = confF2T.last('EncodingHPT') || 'utf8';
-   var areasHPT = simteconf(confF2T.last('AreasHPT'), {
-      encoding: encodingHPT,
-      skipNames: ['#'],
-      lowercase: false,
-      prefixGroups: [
-         'NetmailArea',
-         'BadArea',
-         'DupeArea',
-         'LocalArea',
-         'EchoArea'
-      ]
+   var areas = fidoconfig.areas(confF2T.last('AreasHPT'), {
+      encoding: confF2T.last('EncodingHPT') || 'utf8'
    });
 };
