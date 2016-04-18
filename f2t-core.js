@@ -1,10 +1,12 @@
 var fs = require('fs');
 var path = require('path');
+var async = require('async');
 var cl = require('ciel');
 var fidoconfig = require('fidoconfig');
+var JAM = require('fidonet-jam');
 var simteconf = require('simteconf');
 
-var quitOnError = (err, areaTag) => {
+var quitOnAreaError = (err, areaTag) => {
    if( err.notFound ){
       cl.fail(`The area ${areaTag} is not found.`);
    } else if( err.passthrough ){
@@ -39,7 +41,16 @@ module.exports = (loginName, sourceArea) => {
       path.resolve(__dirname, sourceArea + '.lastread.json')
    );
 
-   areas.area(sourceArea, (err, areaData) => {
-      if( err ) return quitOnError(err, sourceArea);
+   async.waterfall([
+      callback => {
+         areas.area(sourceArea, (err, areaData) => {
+            if( err ) return quitOnAreaError(err, sourceArea);
+            return callback(null, areaData.path);
+         });
+      },
+      (areaPath, callback) => {
+      }
+   ], function waterfallFinished(err){
+      if( err ) throw err;
    });
 };
