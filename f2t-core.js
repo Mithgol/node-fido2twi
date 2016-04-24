@@ -49,6 +49,14 @@ module.exports = (loginName, sourceArea) => {
          });
       },
       (areaPath, callback) => {
+         var echobase = JAM(areaPath);
+         echobase.readJDX(err => {
+            if( err ) return callback(err);
+            return callback(null, echobase);
+         });
+      },
+      (echobase, callback) => {
+         
       }
    ], function waterfallFinished(err){
       if( err ) throw err;
