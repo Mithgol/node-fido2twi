@@ -56,7 +56,22 @@ module.exports = (loginName, sourceArea) => {
          });
       },
       (echobase, callback) => {
-         
+         var echosize = echobase.size();
+         var msgExports = [];
+         if( echosize < 1 ) return callback(null, []);
+
+         async.doUntil(
+            function exportNextMessage(exportDone){
+            },
+            function shouldStopExporting(){
+            },
+            function messagesExported(err){
+               if( err ) return callback(err);
+               return callback(null, msgExports);
+            }
+         );
+      },
+      (msgExports, callback) => {
       }
    ], function waterfallFinished(err){
       if( err ) throw err;
