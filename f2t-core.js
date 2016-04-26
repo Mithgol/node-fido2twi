@@ -59,13 +59,20 @@ module.exports = (loginName, sourceArea) => {
          var echosize = echobase.size();
          var msgExports = [];
          if( echosize < 1 ) return callback(null, []);
+         var nextMessageNum = echosize;
 
          async.doUntil(
-            function exportNextMessage(exportDone){
+            exportDone => {
+               echobase.readHeader(nextMessageNum, (err, header) => {
+                  if( err ) return exportDone(err);
+                  nextMessageNum--;
+
+                  
+               });
             },
-            function shouldStopExporting(){
-            },
-            function messagesExported(err){
+            // `true` if should stop exporting:
+            () => nextMessageNum < 1 || msgExports.length > maxExports,
+            err => {
                if( err ) return callback(err);
                return callback(null, msgExports);
             }
@@ -73,7 +80,7 @@ module.exports = (loginName, sourceArea) => {
       },
       (msgExports, callback) => {
       }
-   ], function waterfallFinished(err){
+   ], err => { // waterfall finished
       if( err ) throw err;
    });
 };
