@@ -6,6 +6,8 @@ var fidoconfig = require('fidoconfig');
 var JAM = require('fidonet-jam');
 var simteconf = require('simteconf');
 
+var maxExports = 20;
+
 var quitOnAreaError = (err, areaTag) => {
    if( err.notFound ){
       cl.fail(`The area ${areaTag} is not found.`);
@@ -42,13 +44,13 @@ module.exports = (loginName, sourceArea) => {
    );
 
    async.waterfall([
-      callback => {
+      callback => { // read the path of the given echomail area
          areas.area(sourceArea, (err, areaData) => {
             if( err ) return quitOnAreaError(err, sourceArea);
             return callback(null, areaData.path);
          });
       },
-      (areaPath, callback) => {
+      (areaPath, callback) => { // initialize the echobase, read its index
          var echobase = JAM(areaPath);
          echobase.readJDX(err => {
             if( err ) return callback(err);
@@ -67,7 +69,10 @@ module.exports = (loginName, sourceArea) => {
                   if( err ) return exportDone(err);
                   nextMessageNum--;
 
-                  
+                  var decodedHeader = echobase.decodeHeader(header);
+                  if( decodedHeader.kludges.some(
+                    aKludge => aKludge.toLowerCase() === 'sourcesite: twitter'
+                  ) ) return exportDone(null); // do not re-export to Twitter
                });
             },
             // `true` if should stop exporting:
@@ -78,7 +83,7 @@ module.exports = (loginName, sourceArea) => {
             }
          );
       },
-      (msgExports, callback) => {
+      (msgExports, callback) => { // export to Twitter
       }
    ], err => { // waterfall finished
       if( err ) throw err;
