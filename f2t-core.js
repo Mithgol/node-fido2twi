@@ -8,6 +8,13 @@ var simteconf = require('simteconf');
 
 var maxExports = 20;
 
+var MSGID2URL = someMSGID => someMSGID.split(
+   /([A-Za-z01-9:/]+)/
+).map((nextChunk, IDX) => {
+   if( IDX % 2 === 0 ) return encodeURIComponent(nextChunk);
+   return nextChunk; // captured by the regular expression
+}).join('').replace( /%20/g, '+' );
+
 var quitOnAreaError = (err, areaTag) => {
    if( err.notFound ){
       cl.fail(`The area ${areaTag} is not found.`);
@@ -73,6 +80,8 @@ module.exports = (loginName, sourceArea) => {
                   if( decodedHeader.kludges.some(
                     aKludge => aKludge.toLowerCase() === 'sourcesite: twitter'
                   ) ) return exportDone(null); // do not re-export to Twitter
+
+                  
                });
             },
             // `true` if should stop exporting:
