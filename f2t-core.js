@@ -8,6 +8,34 @@ var simteconf = require('simteconf');
 
 var maxExports = 20;
 
+var FGHIURL2IPFSURL = (FGHIURL, optsIPFS, optsIPFSURL, callback) => {
+   if( optsIPFS === null ) return callback(null, FGHIURL);
+   if(! optsIPFSURL ) return callback(null, FGHIURL);
+
+   var escapedURL = escape(FGHIURL);
+
+   var bufFGHIHTML = Buffer(`<html><head><meta charset="utf-8">${ ''
+      }<title>FGHI URL</title></head><body>FGHI URL: <a href="${
+      escapedURL}">${escapedURL}</a></body></html>`);
+
+   IPFSAPI(
+      optsIPFS.host, optsIPFS.port
+   ).add(bufFGHIHTML, (err, resultIPFS) => {
+      if( err ) return callback(err);
+      if( !resultIPFS ) return callback(new Error(
+         'Error putting a FGHI URL to IPFS.'
+      ));
+      if(!( Array.isArray(resultIPFS) )) return callback(new Error(
+         'Not an Array received while putting a FGHI URL to IPFS.'
+      ));
+      if( resultIPFS.length !== 1 ) return callback(new Error(
+         'Weird array received while putting a FGHI URL to IPFS.'
+      ));
+      var hashIPFS = resultIPFS[0].Hash;
+      callback(null, `https://ipfs.io/ipfs/${hashIPFS}`);
+   });
+};
+
 var MSGID2URL = someMSGID => someMSGID.split(
    /([A-Za-z01-9:/]+)/
 ).map((nextChunk, IDX) => {
