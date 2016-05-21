@@ -7,19 +7,16 @@ var params = [].concat(process.argv);
 params.shift(); // 'node'
 params.shift(); // 'twi2fido'
 
-if( params.length < 2 ){
+if( params.length < 1 ){
    clog('Usage:');
-   clog('   fido2twi loginName sourceArea');
+   clog('   fido2twi sourceArea');
    clog('');
-   clog('Parameters:');
-   clog('');
-   clog('loginName   -- login name (screen name) of a microblog in Twitter');
+   clog('Parameter:');
    clog('');
    clog('sourceArea  -- areatag of an echomail area in Fidonet');
    process.exit(1);
 }
 
-const loginName  = params[0];
-const sourceArea = params[1];
+const sourceArea = params[0];
 
-console.log( fido2twi(loginName, sourceArea) );
+console.log( fido2twi(sourceArea) );

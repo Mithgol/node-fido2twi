@@ -64,7 +64,7 @@ var getLastReadFromFile = filename => {
    }
 };
 
-module.exports = (loginName, sourceArea) => {
+module.exports = sourceArea => {
    var confF2T = simteconf(
       path.resolve(__dirname, 'fido2twi.config'),
       { skipNames: ['//', '#'] }
