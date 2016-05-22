@@ -1,6 +1,8 @@
 [![(a histogram of downloads)](https://nodei.co/npm-dl/fido2twi.png?height=3)](https://npmjs.org/package/fido2twi)
 
-This application (`fido2twi`) posts Fidonet messages to Twitter. (Its name is derived from loosely abbreviated words “Fido to Twitter”. It does not imply any endorsement, sponsorship, or association with Twitter.)
+This application (`fido2twi`) posts headings (“subjects”) of Fidonet messages to Twitter. (Its name is derived from loosely abbreviated words “Fido to Twitter”. It does not imply any endorsement, sponsorship, or association with Twitter.)
+
+In the posted tweet (microblog entry) the Fidonet message's subject is followed by a (space-separated) URL, creating a hyperlink to that message. However, unfortunately, Twitter does not understand the schemes of [FGHI URL](https://github.com/Mithgol/FGHI-URL/) format for Fidonet URLs. Therefore an intermediate web page (containing the necessary FGHI URL) is automatically generated, and stored in [IPFS](https://ipfs.io/) (the InterPlanetary File System), and then hyperlinked from the tweet.
 
 This application is currently in an early phase of its development and thus does not have the desired level of feature completeness.
 
@@ -36,7 +38,7 @@ Unlike the above (`npm -g`), the application does not appear in the `PATH`, a
 
 ## Configuration steps
 
-1. Visit https://apps.twitter.com/ and register an application. You may use “fido2twi” as the application's name and https://github.com/Mithgol/node-fido2twi/ as its site. The application must have the default “Read and Write” permissons (“Read only” won't suffice) because it posts messages to Twitter.
+1. Visit https://apps.twitter.com/ and register an application. You may use “fido2twi” as the application's name and https://github.com/Mithgol/node-fido2twi/ as its site. The application must have the default “Read and Write” permissions (“Read only” won't suffice) because it posts messages to Twitter.
 
 2. Create an access token.
 
@@ -48,6 +50,20 @@ Unlike the above (`npm -g`), the application does not appear in the `PATH`, a
    * Examples of the area configuration file of HPT (if you need them) are available in its own CVS repository on SourceForge [in English](http://husky.cvs.sf.net/viewvc/husky/hpt/config/areas) and [in Russian](http://husky.cvs.sf.net/viewvc/husky/hpt/config/areas.ru). Text lines of these examples are commented out (by `#` characters in the lines' beginnings) but your real configuration lines must be uncommented.
 
 5. The `EncodingHPT` line should contain the encoding of non-ASCII characters in the HPT areafile. By default, `utf8` is used. You may use any encoding provided by the [`iconv-lite`](https://github.com/ashtuchkin/iconv-lite) module.
+
+6. The line `IPFS localhost:5001` must contain an address (such as `localhost`) and a port (such as `5001`) of an IPFS daemon's HTTP API. That IPFS daemon is used to publish intermediate webpages that become hyperlinked from Twitter and contain hyperlinks that lead to Fidonet. The default value (`localhost:5001`) implies that the daemon runs locally and uses the default port settings of [`go-ipfs`](https://github.com/ipfs/go-ipfs/).
+
+## Using fido2twi
+
+You may run the installed application by typing in the command line:
+
+`fido2twi sourceArea`
+
+It uses the following parameter:
+
+* `sourceArea` — the name (echotag) of an echomail area.
+
+Recent messages are found in that area and then a heading of each message is separately posted as a tweet (a microblog entry) in Twitter.
 
 ## Testing fido2twi
 
