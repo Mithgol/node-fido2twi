@@ -2,25 +2,22 @@ var fs = require('fs');
 var path = require('path');
 var async = require('async');
 var cl = require('ciel');
+var escape = require('lodash.escape');
+var IPFSAPI = require('ipfs-api');
 var fidoconfig = require('fidoconfig');
 var JAM = require('fidonet-jam');
 var simteconf = require('simteconf');
 
 var maxExports = 20;
 
-var FGHIURL2IPFSURL = (FGHIURL, optsIPFS, optsIPFSURL, callback) => {
-   if( optsIPFS === null ) return callback(null, FGHIURL);
-   if(! optsIPFSURL ) return callback(null, FGHIURL);
-
+var FGHIURL2IPFSURL = (FGHIURL, hostIPFS, portIPFS, callback) => {
    var escapedURL = escape(FGHIURL);
 
    var bufFGHIHTML = Buffer(`<html><head><meta charset="utf-8">${ ''
       }<title>FGHI URL</title></head><body>FGHI URL: <a href="${
       escapedURL}">${escapedURL}</a></body></html>`);
 
-   IPFSAPI(
-      optsIPFS.host, optsIPFS.port
-   ).add(bufFGHIHTML, (err, resultIPFS) => {
+   IPFSAPI(hostIPFS, portIPFS).add(bufFGHIHTML, (err, resultIPFS) => {
       if( err ) return callback(err);
       if( !resultIPFS ) return callback(new Error(
          'Error putting a FGHI URL to IPFS.'
@@ -73,6 +70,19 @@ module.exports = sourceArea => {
    var areas = fidoconfig.areas(confF2T.last('AreasHPT'), {
       encoding: confF2T.last('EncodingHPT') || 'utf8'
    });
+   // Read IPFS configuration:
+   var hostportIPFS = confF2T.last('IPFS');
+   if( hostportIPFS === null ){
+      cl.fail('IPFS settings are not found in fido2twi.config.');
+      process.exit(1);
+   }
+   var [hostIPFS, portIPFS] = hostportIPFS.split(':');
+   if( typeof portIPFS === 'undefined' ){
+      portIPFS = 5001;
+      cl.status(
+         'IPFS port is not given in fido2twi.config; assuming port 5001.'
+      );
+   }
 
    var lastRead = getLastReadFromFile(
       path.resolve(__dirname, sourceArea + '.lastread.json')
