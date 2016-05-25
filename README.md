@@ -4,6 +4,8 @@ This application (`fido2twi`) posts headings (“subjects”) of Fidonet messa
 
 In the posted tweet (microblog entry) the Fidonet message's subject is followed by a (space-separated) URL, creating a hyperlink to that message. However, unfortunately, Twitter does not understand the schemes of [FGHI URL](https://github.com/Mithgol/FGHI-URL/) format for Fidonet URLs. Therefore an intermediate web page (containing the necessary FGHI URL) is automatically generated, and stored in [IPFS](https://ipfs.io/) (the InterPlanetary File System), and then hyperlinked from the tweet.
 
+Currently this application is not designed to send the “extended” version of tweets that was introduced in the announcements “[Coming soon: express even more in 140 characters](https://blog.twitter.com/express-even-more-in-140-characters)” and “[Doing more with 140 characters](https://blog.twitter.com/2016/doing-more-with-140-characters)” in 2016.
+
 This application is currently in an early phase of its development and thus does not have the desired level of feature completeness.
 
 ## Requirements
