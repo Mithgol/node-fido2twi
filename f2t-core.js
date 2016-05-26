@@ -114,10 +114,36 @@ module.exports = sourceArea => {
                   if( err ) return exportDone(err);
                   nextMessageNum--;
 
-                  var decodedHeader = echobase.decodeHeader(header);
-                  if( decodedHeader.kludges.some(
+                  var decoded = echobase.decodeHeader(header);
+                  if( decoded.kludges.some(
                     aKludge => aKludge.toLowerCase() === 'sourcesite: twitter'
                   ) ) return exportDone(null); // do not re-export to Twitter
+
+                  var itemURL = 'area://' + sourceArea;
+                  var itemURLFilters = '';
+
+                  if( typeof decoded.msgid !== 'undefined' ){
+                     itemURLFilters = [
+                        '?msgid=', MSGID2URL(decoded.msgid),
+                        '&time=', decoded.origTime[0]
+                     ].join('');
+                  } else {
+                     itemURLFilters = [
+                        '?time=',
+                        decoded.origTime[0],
+                        '-',
+                        decoded.origTime[1],
+                        '-',
+                        decoded.origTime[2],
+                        'T',
+                        decoded.origTime[3],
+                        ':',
+                        decoded.origTime[4],
+                        ':',
+                        decoded.origTime[5]
+                     ].join('');
+                  }
+                  itemURL += itemURLFilters;
 
                   
                });
