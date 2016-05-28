@@ -7,8 +7,10 @@ var IPFSAPI = require('ipfs-api');
 var fidoconfig = require('fidoconfig');
 var JAM = require('fidonet-jam');
 var simteconf = require('simteconf');
+var twitter = require('twitter');
 
 var maxExports = 20;
+var twiDelay = 1000 * 60 * 2; // 2 min
 
 var FGHIURL2IPFSURL = (FGHIURL, hostIPFS, portIPFS, callback) => {
    var escapedURL = escape(FGHIURL);
@@ -61,6 +63,14 @@ var getLastReadFromFile = filename => {
    }
 };
 
+var putLastReadToFile = (filename, arrLastRead) => {
+   fs.writeFileSync(
+      filename,
+      JSON.stringify(arrLastRead),
+      {encoding: 'utf8'}
+   );
+};
+
 module.exports = sourceArea => {
    var confF2T = simteconf(
       path.resolve(__dirname, 'fido2twi.config'),
@@ -84,9 +94,17 @@ module.exports = sourceArea => {
       );
    }
 
-   var lastRead = getLastReadFromFile(
+   // read an array of FGHI URLs of last read messages:
+   var arrLastRead = getLastReadFromFile(
       path.resolve(__dirname, sourceArea + '.lastread.json')
    );
+
+   var twi = new twitter({
+      consumer_key:        confF2T.last('ConsumerKey'),
+      consumer_secret:     confF2T.last('ConsumerSecret'),
+      access_token_key:    confF2T.last('AccessTokenKey'),
+      access_token_secret: confF2T.last('AccessTokenSecret')
+   });
 
    async.waterfall([
       callback => { // read the path of the given echomail area
@@ -107,7 +125,11 @@ module.exports = sourceArea => {
          var msgExports = [];
          if( echosize < 1 ) return callback(null, []);
          var nextMessageNum = echosize;
+         var lastReadEncountered = false;
+         var newLastRead = [];
 
+         // `msgExports` is filled in reverse chronological order
+         // `msgExports` would contain (string) message texts for Twitter
          async.doUntil(
             exportDone => {
                echobase.readHeader(nextMessageNum, (err, header) => {
@@ -115,9 +137,6 @@ module.exports = sourceArea => {
                   nextMessageNum--;
 
                   var decoded = echobase.decodeHeader(header);
-                  if( decoded.kludges.some(
-                    aKludge => aKludge.toLowerCase() === 'sourcesite: twitter'
-                  ) ) return exportDone(null); // do not re-export to Twitter
 
                   var itemURL = 'area://' + sourceArea;
                   var itemURLFilters = '';
@@ -145,18 +164,74 @@ module.exports = sourceArea => {
                   }
                   itemURL += itemURLFilters;
 
-                  
+                  if( arrLastRead.includes(itemURL) ){
+                     lastReadEncountered = true;
+                     return exportDone(null); // do not export previously read
+                  } else newLastRead.push(itemURL);
+
+                  if( decoded.kludges.some(
+                    aKludge => aKludge.toLowerCase() === 'sourcesite: twitter'
+                  ) ) return exportDone(null); // do not re-export to Twitter
+
+                  var nextText;
+                  if( decoded.subj ){
+                     nextText = decoded.subj + ' ';
+                  } else {
+                     nextText = '(without subject) ';
+                  }
+                  FGHIURL2IPFSURL(
+                     itemURL,
+                     hostIPFS,
+                     portIPFS,
+                     (err, IPFSURL) => {
+                        if( err ) return exportDone(err);
+                        msgExports.push( nextText + IPFSURL );
+                        exportDone(null);
+                     }
+                  );
                });
             },
             // `true` if should stop exporting:
-            () => nextMessageNum < 1 || msgExports.length > maxExports,
+            () => lastReadEncountered ||
+               nextMessageNum < 1 ||
+               msgExports.length > maxExports,
             err => {
                if( err ) return callback(err);
-               return callback(null, msgExports);
+               return callback(null, msgExports, newLastRead);
             }
          );
       },
-      (msgExports, callback) => { // export to Twitter
+      (msgExports, newLastRead, finishedExportToTwitter) => {
+         async.eachSeries(
+            msgExports.reverse(), // restore chronological order
+            (nextMessage, sentToTwitter) => {
+               twi.post(
+                  'statuses/update',
+                  {
+                     status: nextMessage
+                  },
+                  (err /* , tweet, response */) => {
+                     if( err ) return sentToTwitter(err);
+
+                     setTimeout(() => {
+                        return sentToTwitter(null);
+                     }, twiDelay);
+                  }
+               );
+            },
+            err => {
+               if( err ) return finishedExportToTwitter(err);
+
+               if(
+                  Array.isArray(newLastRead) && newLastRead.length > 1
+               ) putLastReadToFile(
+                  path.resolve(__dirname, sourceArea + '.lastread.json'),
+                  newLastRead
+               );
+
+               return finishedExportToTwitter(null);
+            }
+         );
       }
    ], err => { // waterfall finished
       if( err ) throw err;
