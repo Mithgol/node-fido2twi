@@ -6,8 +6,6 @@ In the posted tweet (microblog entry) the Fidonet message's subject is foll
 
 Currently this application is not designed to send the “extended” version of tweets that was introduced in the announcements “[Coming soon: express even more in 140 characters](https://blog.twitter.com/express-even-more-in-140-characters)” and “[Doing more with 140 characters](https://blog.twitter.com/2016/doing-more-with-140-characters)” in 2016.
 
-This application is currently in an early phase of its development and thus does not have the desired level of feature completeness.
-
 ## Requirements
 
 * This application (`fido2twi`) is written in JavaScript and requires [Node.js](http://nodejs.org/) to run. Because it uses ECMAScript 2016 features, a relatively recent Node.js (version 6 or newer) is required. The application is tested on the most recent stable version of Node.js.

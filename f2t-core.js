@@ -169,9 +169,17 @@ module.exports = sourceArea => {
                      return exportDone(null); // do not export previously read
                   } else newLastRead.push(itemURL);
 
-                  if( decoded.kludges.some(
-                    aKludge => aKludge.toLowerCase() === 'sourcesite: twitter'
-                  ) ) return exportDone(null); // do not re-export to Twitter
+                  if(
+                     typeof decoded.from === 'string' &&
+                     decoded.from.startsWith('@') // probably a Twitter handle
+                  ) return exportDone(null); // do not re-export to Twitter
+
+                  if(
+                     Array.isArray(decoded.kludges) &&
+                     decoded.kludges.some(aKludge =>
+                        aKludge.toLowerCase() === 'sourcesite: twitter'
+                     )
+                  ) return exportDone(null); // do not re-export to Twitter
 
                   var nextText;
                   if( decoded.subj ){
@@ -186,7 +194,7 @@ module.exports = sourceArea => {
                      (err, IPFSURL) => {
                         if( err ) return exportDone(err);
                         msgExports.push( nextText + IPFSURL );
-                        exportDone(null);
+                        return exportDone(null);
                      }
                   );
                });
@@ -194,7 +202,7 @@ module.exports = sourceArea => {
             // `true` if should stop exporting:
             () => lastReadEncountered ||
                nextMessageNum < 1 ||
-               msgExports.length > maxExports,
+               msgExports.length >= maxExports,
             err => {
                if( err ) return callback(err);
                return callback(null, msgExports, newLastRead);
