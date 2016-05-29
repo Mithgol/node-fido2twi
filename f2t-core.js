@@ -202,9 +202,10 @@ module.exports = sourceArea => {
          );
       },
       (msgExports, newLastRead, finishedExportToTwitter) => {
-         async.eachSeries(
+         var lastIDX = msgExports.length - 1;
+         async.forEachOfSeries(
             msgExports.reverse(), // restore chronological order
-            (nextMessage, sentToTwitter) => {
+            (nextMessage, messageIDX, sentToTwitter) => {
                twi.post(
                   'statuses/update',
                   {
@@ -213,9 +214,12 @@ module.exports = sourceArea => {
                   (err /* , tweet, response */) => {
                      if( err ) return sentToTwitter(err);
 
-                     setTimeout(() => {
-                        return sentToTwitter(null);
-                     }, twiDelay);
+                     cl.ok(nextMessage);
+                     if( messageIDX < lastIDX ){
+                        setTimeout(() => {
+                           return sentToTwitter(null);
+                        }, twiDelay);
+                     } else return sentToTwitter(null);
                   }
                );
             },
