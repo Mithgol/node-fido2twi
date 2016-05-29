@@ -19,4 +19,4 @@ if( params.length < 1 ){
 
 const sourceArea = params[0];
 
-console.log( fido2twi(sourceArea) );
+fido2twi(sourceArea);
