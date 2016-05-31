@@ -76,6 +76,10 @@ module.exports = sourceArea => {
       path.resolve(__dirname, 'fido2twi.config'),
       { skipNames: ['//', '#'] }
    );
+   // Read skipped lines:
+   var SkipBySubj = confF2T.all('SkipBySubj');
+   if( SkipBySubj === null ) SkipBySubj = [];
+   SkipBySubj = SkipBySubj.map( nextSubj => nextSubj.trim() );
    // Read HPT areas:
    var areas = fidoconfig.areas(confF2T.last('AreasHPT'), {
       encoding: confF2T.last('EncodingHPT') || 'utf8'
@@ -173,6 +177,11 @@ module.exports = sourceArea => {
                      typeof decoded.from === 'string' &&
                      decoded.from.startsWith('@') // probably a Twitter handle
                   ) return exportDone(null); // do not re-export to Twitter
+
+                  if(
+                     typeof decoded.subj === 'string' &&
+                     SkipBySubj.includes( decoded.subj.trim() )
+                  ) return exportDone(null); // skip → do not post to Twitter
 
                   if(
                      Array.isArray(decoded.kludges) &&

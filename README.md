@@ -53,6 +53,10 @@ Unlike the above (`npm -g`), the application does not appear in the `PATH`, a
 
 6. The line `IPFS localhost:5001` must contain an address (such as `localhost`) and a port (such as `5001`) of an IPFS daemon's HTTP API. That IPFS daemon is used to publish intermediate webpages that become hyperlinked from Twitter and contain hyperlinks that lead to Fidonet. The default value (`localhost:5001`) implies that the daemon runs locally and uses the default port settings of [`go-ipfs`](https://github.com/ipfs/go-ipfs/).
 
+7. One or several optional `SkipBySubj` lines (such as `SkipBySubj *** Rules` in `example.config`) allow Fidonet messages to be skipped (not posted to Twitter) if their subject line (such as `*** Rules` in this example) matches one of the given `SkipBySubj` settings. (The idea behind the given example is that regularly posted rules of an echomail area are probably not interesting enough to appear in Twitter.) These matches are case-sensitive, but both leading and trailing spaces are stripped from both `SkipBySubj` and the subject before they are compared.
+   * The message is also skipped (not posted to Twitter) if it contains a kludge `sourcesite: twitter` (not case-sensitive). Such messages are generated from Twitter timelines and it's not wise to repost them back to Twitter.
+   * The message is also skipped (not posted to Twitter) if its sender name (“From:” value) starts with the `@` character. Such senders are likely to be Twitter usernames and it's not wise to repost their messages back to Twitter.
+
 ## Using fido2twi
 
 You may run the installed application by typing in the command line:
