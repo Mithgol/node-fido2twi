@@ -79,6 +79,10 @@ It is necessary to install [JSHint](http://jshint.com/) for testing.
 
 After that you may run `npm test` (in the directory of fido2twi). Only the JS code errors are caught; the code's behaviour is not tested.
 
+## See also
+
+The package [`twi2fido`](https://github.com/Mithgol/node-twi2fido) aggregates microblog entries from Twitter and prepares them for being posted to Fidonet. It's a useful counterpart to `fido2twi`.
+
 ## License
 
 MIT license (see the `LICENSE` file).
