@@ -110,6 +110,8 @@ module.exports = sourceArea => {
       access_token_secret: confF2T.last('AccessTokenSecret')
    });
 
+   cl.status(`Looking in ${sourceArea} for tweets...`);
+
    async.waterfall([
       callback => { // read the path of the given echomail area
          areas.area(sourceArea, (err, areaData) => {
@@ -249,6 +251,11 @@ module.exports = sourceArea => {
                   path.resolve(__dirname, sourceArea + '.lastread.json'),
                   newLastRead
                );
+
+               var numTweets = msgExports.length;
+               if( numTweets > 0 ){
+                  cl.status(`${numTweets} tweets posted from ${sourceArea}.`);
+               } else cl.skip(`No new tweets posted from ${sourceArea}.`);
 
                return finishedExportToTwitter(null);
             }
