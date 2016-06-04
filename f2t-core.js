@@ -66,7 +66,7 @@ var getLastReadFromFile = filename => {
 var putLastReadToFile = (filename, arrLastRead) => {
    fs.writeFileSync(
       filename,
-      JSON.stringify(arrLastRead),
+      JSON.stringify(arrLastRead, null, 3),
       {encoding: 'utf8'}
    );
 };
