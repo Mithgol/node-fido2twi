@@ -110,8 +110,6 @@ module.exports = sourceArea => {
       access_token_secret: confF2T.last('AccessTokenSecret')
    });
 
-   cl.status(`Looking in ${sourceArea} for tweets...`);
-
    async.waterfall([
       callback => { // read the path of the given echomail area
          areas.area(sourceArea, (err, areaData) => {
