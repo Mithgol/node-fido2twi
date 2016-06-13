@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 var cl = require('ciel');
-var fido2twi = require('./f2t-core.js');
 var clog = console.log;
 
 var params = [].concat(process.argv);
@@ -22,4 +21,4 @@ const sourceArea = params[0];
 
 cl.status(`Looking in ${sourceArea} for tweets...`);
 
-fido2twi(sourceArea);
+require('./f2t-core.js')(sourceArea);
