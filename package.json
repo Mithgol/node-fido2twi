@@ -3,7 +3,7 @@
 "bin": "./fido2twi.js",
 "preferGlobal": true,
 "main": "f2t-core.js",
-"version": "0.2.0",
+"version": "0.2.1",
 "description": "Posts Fidonet messages to Twitter.",
 "keywords": ["Fidonet", "Fido", "Twitter"],
 "author": { "name": "Mithgol the Webmaster" },
