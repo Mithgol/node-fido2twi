@@ -14,7 +14,7 @@
 },
 "dependencies": {
    "async": "~2.0.1",
-   "ciel": "~0.2.0",
+   "ciel": "~0.3.0",
    "fidoconfig": "~0.2.5",
    "fidonet-jam": "~3.8.14",
    "fiunis": "~2.1.3",
