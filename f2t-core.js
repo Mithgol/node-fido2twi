@@ -30,7 +30,10 @@ var FGHIURL2IPFSURL = (FGHIURL, hostIPFS, portIPFS, callback) => {
       if( resultIPFS.length !== 1 ) return callback(new Error(
          'Weird array received while putting a FGHI URL to IPFS.'
       ));
-      var hashIPFS = resultIPFS[0].Hash;
+      var hashIPFS = resultIPFS[0].hash;
+      if( typeof hashIPFS === 'undefined' ) return callback(new Error(
+         'Undefined hash received while putting a FGHI URL to IPFS.'
+      ));
       callback(null, `https://ipfs.io/ipfs/${hashIPFS}`);
    });
 };
