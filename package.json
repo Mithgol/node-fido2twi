@@ -13,7 +13,7 @@
    "url": "https://github.com/Mithgol/node-fido2twi.git"
 },
 "dependencies": {
-   "async": "~2.0.1",
+   "async": "~2.1.1",
    "ciel": "~0.3.0",
    "fidoconfig": "~0.2.5",
    "fidonet-jam": "~3.8.14",
