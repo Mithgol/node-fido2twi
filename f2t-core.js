@@ -2,48 +2,48 @@ var fs = require('fs');
 var path = require('path');
 var async = require('async');
 var cl = require('ciel');
-var escape = require('lodash.escape');
-var IPFSAPI = require('ipfs-api');
 var fidoconfig = require('fidoconfig');
+var FidoMail2IPFS = require('fidomail2ipfs');
 var JAM = require('fidonet-jam');
 var simteconf = require('simteconf');
 var twitter = require('twitter');
 
 var maxExports = 20;
 var twiDelay = 1000 * 60 * 2; // 2 min
+var csspxAvatarWidth = 140;
 
-var FGHIURL2IPFSURL = (FGHIURL, hostIPFS, portIPFS, callback) => {
-   var escapedURL = escape(FGHIURL);
-
-   var bufFGHIHTML = Buffer(`<html><head><meta charset="utf-8">${ ''
-      }<title>FGHI URL</title></head><body>FGHI URL: <a href="${
-      escapedURL}">${escapedURL}</a></body></html>`);
-
-   IPFSAPI(hostIPFS, portIPFS).add(bufFGHIHTML, (err, resultIPFS) => {
-      if( err ) return callback(err);
-      if( !resultIPFS ) return callback(new Error(
-         'Error putting a FGHI URL to IPFS.'
-      ));
-      if(!( Array.isArray(resultIPFS) )) return callback(new Error(
-         'Not an Array received while putting a FGHI URL to IPFS.'
-      ));
-      if( resultIPFS.length !== 1 ) return callback(new Error(
-         'Weird array received while putting a FGHI URL to IPFS.'
-      ));
-      var hashIPFS = resultIPFS[0].hash;
-      if( typeof hashIPFS === 'undefined' ) return callback(new Error(
-         'Undefined hash received while putting a FGHI URL to IPFS.'
-      ));
-      callback(null, `https://ipfs.io/ipfs/${hashIPFS}`);
-   });
-};
-
-var MSGID2URL = someMSGID => someMSGID.split(
-   /([A-Za-z01-9:/]+)/
+var MSGID4URL = someMSGID => someMSGID.split(
+   /([A-Za-z01-9:/]+)/   // ← these characters are already fine
 ).map((nextChunk, IDX) => {
    if( IDX % 2 === 0 ) return encodeURIComponent(nextChunk);
-   return nextChunk; // captured by the regular expression
+   return nextChunk; // captured by the regular expression → is fine “as is”
 }).join('').replace( /%20/g, '+' );
+
+var generateMessageURL = (areatag, MSGID, origTime) => {
+   var URLFilters = '';
+
+   if( typeof MSGID !== 'undefined' ){
+      URLFilters = [
+         '?msgid=', MSGID4URL(MSGID),
+         '&time=', origTime[0] // just the year
+      ].join('');
+   } else URLFilters = [
+      '?time=',
+      origTime[0],
+      '-',
+      origTime[1],
+      '-',
+      origTime[2],
+      'T',
+      origTime[3],
+      ':',
+      origTime[4],
+      ':',
+      origTime[5]
+   ].join('');
+
+   return 'area://' + areatag + URLFilters;
+};
 
 var quitOnAreaError = (err, areaTag) => {
    if( err.notFound ){
@@ -66,13 +66,11 @@ var getLastReadFromFile = filename => {
    }
 };
 
-var putLastReadToFile = (filename, arrLastRead) => {
-   fs.writeFileSync(
-      filename,
-      JSON.stringify(arrLastRead, null, 3),
-      {encoding: 'utf8'}
-   );
-};
+var putLastReadToFile = (filename, arrLastRead) => fs.writeFileSync(
+   filename,
+   JSON.stringify(arrLastRead, null, 3),
+   {encoding: 'utf8'}
+);
 
 module.exports = sourceArea => {
    var confF2T = simteconf(
@@ -114,23 +112,20 @@ module.exports = sourceArea => {
    });
 
    async.waterfall([
-      callback => { // read the path of the given echomail area
-         areas.area(sourceArea, (err, areaData) => {
-            if( err ) return quitOnAreaError(err, sourceArea);
-            return callback(null, areaData.path);
-         });
-      },
+      // read the path of the given echomail area
+      callback => areas.area(sourceArea, (err, areaData) => {
+         if( err ) return quitOnAreaError(err, sourceArea);
+         return callback(null, areaData.path);
+      }),
       (areaPath, callback) => { // initialize the echobase, read its index
          var echobase = JAM(areaPath);
-         echobase.readJDX(err => {
-            if( err ) return callback(err);
-            return callback(null, echobase);
-         });
+         echobase.readJDX( err => callback(err, echobase) );
       },
-      (echobase, callback) => {
+      (echobase, callback) => { // generate an array of tweet texts
          var echosize = echobase.size();
-         var msgExports = [];
          if( echosize < 1 ) return callback(null, []);
+
+         var msgExports = [];
          var nextMessageNum = echosize;
          var lastReadEncountered = false;
          var newLastRead = [];
@@ -145,31 +140,11 @@ module.exports = sourceArea => {
 
                   var decoded = echobase.decodeHeader(header);
 
-                  var itemURL = 'area://' + sourceArea;
-                  var itemURLFilters = '';
+                  var itemURL = generateMessageURL(
+                     sourceArea, decoded.msgid, decoded.origTime
+                  );
 
-                  if( typeof decoded.msgid !== 'undefined' ){
-                     itemURLFilters = [
-                        '?msgid=', MSGID2URL(decoded.msgid),
-                        '&time=', decoded.origTime[0]
-                     ].join('');
-                  } else {
-                     itemURLFilters = [
-                        '?time=',
-                        decoded.origTime[0],
-                        '-',
-                        decoded.origTime[1],
-                        '-',
-                        decoded.origTime[2],
-                        'T',
-                        decoded.origTime[3],
-                        ':',
-                        decoded.origTime[4],
-                        ':',
-                        decoded.origTime[5]
-                     ].join('');
-                  }
-                  itemURL += itemURLFilters;
+                  // header and URL are enough to decide if an export happens
 
                   if( arrLastRead.includes(itemURL) ){
                      lastReadEncountered = true;
@@ -193,37 +168,74 @@ module.exports = sourceArea => {
                      )
                   ) return exportDone(null); // do not re-export to Twitter
 
-                  var nextText;
+                  // now it's decided that an export should happen
+
+                  var tweetText; // ← always ends with a space
                   if( decoded.subj ){
-                     nextText = decoded.subj + ' ';
-                  } else {
-                     nextText = '(without subject) ';
-                  }
-                  FGHIURL2IPFSURL(
-                     itemURL,
-                     hostIPFS,
-                     portIPFS,
-                     (err, IPFSURL) => {
-                        if( err ) return exportDone(err);
-                        msgExports.push( nextText + IPFSURL );
-                        return exportDone(null);
-                     }
-                  );
+                     tweetText = decoded.subj + ' ';
+                  } else tweetText = '(Fidonet message without a subject) ';
+
+                  async.waterfall([
+                     // message's text decoding:
+                     callback => echobase.decodeMessage(header, callback),
+                     // search for the message's original address and avatar:
+                     (messageText, callback) => echobase.getOrigAddr(
+                        header,
+                        (origErr, origAddr) => {
+                           if( origErr ) return callback(origErr);
+
+                           var avatarsList = echobase.getAvatarsForHeader(
+                              header, ['https', 'http'], {
+                                 size: csspxAvatarWidth * 2, //retina pixels
+                                 origAddr: origAddr
+                           });
+                           if( avatarsList.length < 1 ) avatarsList = [
+                              'https://secure.gravatar.com/avatar/?f=y&d=mm' +
+                              '&s=' + ( csspxAvatarWidth * 2 ) //retina pixels
+                           ];
+
+                           return callback(null, {
+                              messageText: messageText,
+                              origAddr: origAddr,
+                              avatarURL: avatarsList[0]
+                           });
+                        }
+                     ),
+                     // got `messageText` and `origAddr` and avatar; storing…
+                     (wrapped, callback) => FidoMail2IPFS(
+                        {
+                           server: hostIPFS,
+                           port: portIPFS,
+                           messageText: wrapped.messageText,
+                           avatarWidth: csspxAvatarWidth,
+                           avatarURL: wrapped.avatarURL,
+                           from: decoded.from || '',
+                           origAddr: wrapped.origAddr,
+                           to: decoded.to || '',
+                           origTime: decoded.origTime,
+                           procTime: decoded.procTime,
+                           subj: decoded.subj || '',
+                           URL: itemURL
+                        },
+                        (err, IPFSURL) => {
+                           if( err ) return callback(err);
+                           msgExports.push( tweetText + IPFSURL );
+                           return callback(null);
+                        }
+                     )
+                  ], exportDone); // `exportDone` receives an error or null
                });
             },
             // `true` if should stop exporting:
             () => lastReadEncountered ||
                nextMessageNum < 1 ||
                msgExports.length >= maxExports,
-            err => {
-               if( err ) return callback(err);
-               return callback(null, msgExports, newLastRead);
-            }
+            err => callback(err, msgExports, newLastRead)
          );
       },
       (msgExports, newLastRead, finishedExportToTwitter) => {
          var lastIDX = msgExports.length - 1;
-         async.forEachOfSeries(
+         async.eachOfSeries(
             msgExports.reverse(), // restore chronological order
             (nextMessage, messageIDX, sentToTwitter) => {
                twi.post(
@@ -247,7 +259,7 @@ module.exports = sourceArea => {
                if( err ) return finishedExportToTwitter(err);
 
                if(
-                  Array.isArray(newLastRead) && newLastRead.length > 1
+                  Array.isArray(newLastRead) && newLastRead.length > 0
                ) putLastReadToFile(
                   path.resolve(__dirname, sourceArea + '.lastread.json'),
                   newLastRead
