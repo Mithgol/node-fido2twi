@@ -8,7 +8,7 @@ Currently this application is not designed to send the “extended” versio
 
 ## Requirements
 
-* This application (`fido2twi`) is written in JavaScript and requires [Node.js](http://nodejs.org/) to run. Because it uses ECMAScript 2016 features, a relatively recent Node.js (version 6 or newer) is required. The application is tested on the most recent stable version of Node.js.
+* This application (`fido2twi`) is written in JavaScript and requires [Node.js](http://nodejs.org/) to run. Some ECMAScript 2016 features are used, and thus a relatively recent Node.js (version 6.8.1 or newer) is required. The application is tested on the most recent stable version of Node.js.
 
 * Сurrently `fido2twi` supports only the JAM [(Joaquim-Andrew-Mats)](https://github.com/Mithgol/node-fidonet-jam/blob/master/JAM.txt) type of Fidonet message bases.
 
