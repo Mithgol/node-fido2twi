@@ -4,9 +4,12 @@ var async = require('async');
 var cl = require('ciel');
 var fidoconfig = require('fidoconfig');
 var FidoMail2IPFS = require('fidomail2ipfs');
+var fiunis = require('fiunis');
+var IPFSAPI = require('ipfs-api');
 var JAM = require('fidonet-jam');
 var simteconf = require('simteconf');
 var twitter = require('twitter');
+var UUE2IPFS = require('uue2ipfs');
 
 var maxExports = 20;
 var twiDelay = 1000 * 60 * 2; // 2 min
@@ -202,25 +205,44 @@ module.exports = sourceArea => {
                         }
                      ),
                      // got `messageText` and `origAddr` and avatar; storing…
-                     (wrapped, callback) => FidoMail2IPFS(
+                     (wrapped, callback) => UUE2IPFS.UUE2IPFS(
+                        wrapped.messageText,
+                        (fileData, fileDone) => fileDone(null,
+                           [
+                              '![(',
+                              fileData.name.replace(/]/g, '\\]'),
+                              ')](fs:/ipfs/', fileData.hash, ')'
+                           ].join('')
+                        ),
                         {
-                           server: hostIPFS,
-                           port: portIPFS,
-                           messageText: wrapped.messageText,
-                           avatarWidth: csspxAvatarWidth,
-                           avatarURL: wrapped.avatarURL,
-                           from: decoded.from || '',
-                           origAddr: wrapped.origAddr,
-                           to: decoded.to || '',
-                           origTime: decoded.origTime,
-                           procTime: decoded.procTime,
-                           subj: decoded.subj || '',
-                           URL: itemURL
+                           API: IPFSAPI(hostIPFS, portIPFS),
+                           filterMIME: UUE2IPFS.imgMIME()
                         },
-                        (err, IPFSURL) => {
+                        (err, convertedText) => {
                            if( err ) return callback(err);
-                           msgExports.push( tweetText + IPFSURL );
-                           return callback(null);
+
+                           FidoMail2IPFS(
+                              {
+                                 server: hostIPFS,
+                                 port: portIPFS,
+                                 messageText: convertedText,
+                                 avatarWidth: csspxAvatarWidth,
+                                 avatarURL: wrapped.avatarURL,
+                                 from: decoded.from || '',
+                                 origAddr: wrapped.origAddr,
+                                 to: decoded.to || '',
+                                 origTime: decoded.origTime,
+                                 procTime: decoded.procTime,
+                                 subj: decoded.subj ?
+                                    fiunis.decode( decoded.subj ) : '',
+                                 URL: itemURL
+                              },
+                              (err, IPFSURL) => {
+                                 if( err ) return callback(err);
+                                 msgExports.push( tweetText + IPFSURL );
+                                 return callback(null);
+                              }
+                           );
                         }
                      )
                   ], exportDone); // `exportDone` receives an error or null
