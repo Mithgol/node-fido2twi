@@ -22,7 +22,7 @@ var MSGID4URL = someMSGID => someMSGID.split(
    return nextChunk; // captured by the regular expression → is fine “as is”
 }).join('').replace( /%20/g, '+' );
 
-var generateMessageURL = (areatag, MSGID, origTime) => {
+var generateMessageFGHIURL = (areatag, MSGID, origTime) => {
    var URLFilters = '';
 
    if( typeof MSGID !== 'undefined' ){
@@ -143,16 +143,16 @@ module.exports = sourceArea => {
 
                   var decoded = echobase.decodeHeader(header);
 
-                  var itemURL = generateMessageURL(
+                  var itemFGHIURL = generateMessageFGHIURL(
                      sourceArea, decoded.msgid, decoded.origTime
                   );
 
                   // header and URL are enough to decide if an export happens
 
-                  if( arrLastRead.includes(itemURL) ){
+                  if( arrLastRead.includes(itemFGHIURL) ){
                      lastReadEncountered = true;
                      return exportDone(null); // do not export previously read
-                  } else newLastRead.push(itemURL);
+                  } else newLastRead.push(itemFGHIURL);
 
                   if(
                      typeof decoded.from === 'string' &&
@@ -235,7 +235,7 @@ module.exports = sourceArea => {
                                  procTime: decoded.procTime,
                                  subj: decoded.subj ?
                                     fiunis.decode( decoded.subj ) : '',
-                                 URL: itemURL
+                                 URL: itemFGHIURL
                               },
                               (err, IPFSURL) => {
                                  if( err ) return callback(err);
