@@ -10,6 +10,8 @@ Currently this application is not designed to send the “extended” versio
 
 * This application (`fido2twi`) is written in JavaScript and requires [Node.js](http://nodejs.org/) to run. Some ECMAScript 2016 features are used, and thus a relatively recent Node.js (version 6.8.1 or newer) is required. The application is tested on the most recent stable version of Node.js.
 
+* Сurrently `fido2twi` requires a properly configured (and running) [IPFS](https://ipfs.io/) daemon (such as [`go-ipfs`](https://github.com/ipfs/go-ipfs/) for example) which is used by `fido2twi` as a storage of generated web pages.
+
 * Сurrently `fido2twi` supports only the JAM [(Joaquim-Andrew-Mats)](https://github.com/Mithgol/node-fidonet-jam/blob/master/JAM.txt) type of Fidonet message bases.
 
 * Сurrently `fido2twi` uses [HPT](http://husky.sourceforge.net/hpt.html)'s area configuration file as the description of echomail areas.
