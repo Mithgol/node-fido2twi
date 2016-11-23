@@ -124,7 +124,30 @@ module.exports = sourceArea => {
          var echobase = JAM(areaPath);
          echobase.readJDX( err => callback(err, echobase) );
       },
-      (echobase, callback) => { // generate an array of tweet texts
+      (echobase, callback) => { // get the username in Twitter
+         twi.get(
+            'account/verify_credentials',
+            {
+               include_entities: false,
+               skip_status: true,
+               include_email: false
+            },
+            (err, credentials) => {
+               if( err ) return callback(err);
+               if(
+                  typeof credentials.screen_name !== 'string' ||
+                  credentials.screen_name.length < 1
+               ) return callback(
+                  new Error('Invalid `screen_name` credentials.')
+               );
+
+               cl.ok(`Successfully verified credentials of @${
+               credentials.screen_name}.`);
+               return callback(null, credentials.screen_name, echobase);
+            }
+         );
+      },
+      (twiUsername, echobase, callback) => {//generate an array of tweet texts
          var echosize = echobase.size();
          if( echosize < 1 ) return callback(null, []);
 
@@ -235,7 +258,8 @@ module.exports = sourceArea => {
                                  procTime: decoded.procTime,
                                  subj: decoded.subj ?
                                     fiunis.decode( decoded.subj ) : '',
-                                 URL: itemFGHIURL
+                                 URL: itemFGHIURL,
+                                 twitterUser: twiUsername
                               },
                               (err, IPFSURL) => {
                                  if( err ) return callback(err);
