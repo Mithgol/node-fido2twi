@@ -221,7 +221,9 @@ module.exports = sourceArea => {
 
                   // now it's decided that an export should happen
 
-                  var tweetText = '\u{1f4be} ' + sourceArea + ' → ';
+                  var tweetText = '\u{1f4be} ' + sourceArea.replace(
+                    /\./g, '\u{1f538}'
+                  ) + ' → ';
                   // now `tweetText` ends with a space
                   if( decoded.subj ){
                      tweetText += fiunis.decode( decoded.subj );
