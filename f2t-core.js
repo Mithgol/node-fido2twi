@@ -1,3 +1,5 @@
+/* jshint -W052 */ // work around https://github.com/jshint/jshint/issues/3067
+
 var fs = require('fs');
 var path = require('path');
 var async = require('async');
@@ -143,11 +145,34 @@ module.exports = sourceArea => {
 
                cl.ok(`Successfully verified credentials of @${
                credentials.screen_name}.`);
-               return callback(null, credentials.screen_name, echobase);
+               return callback(null, {
+                  twiUsername: credentials.screen_name,
+                  echobase: echobase
+               });
             }
          );
       },
-      (twiUsername, echobase, callback) => {//generate an array of tweet texts
+      (wrappedData, callback) => { // get the configuration of Twitter
+         twi.get(
+            'help/configuration',
+            (err, twiConfig) => {
+               if( err ) return callback(err);
+               if(
+                  typeof twiConfig.short_url_length_https !== 'number' ||
+                  twiConfig.short_url_length_https < 2
+               ) return callback(new Error(
+                  "Abnormal Twitter's `short_url_length_https` configuration."
+               ));
+
+               cl.ok(`Read Twitter's configuration. HTTPS short URLs are ${
+               twiConfig.short_url_length_https} characters long.`);
+               wrappedData.textLimit = 139 - twiConfig.short_url_length_https;
+               return callback(null, wrappedData);
+            }
+         );
+      },
+      (wrappedData, callback) => {//generate an array of tweet texts
+         var echobase = wrappedData.echobase;
          var echosize = echobase.size();
          if( echosize < 1 ) return callback(null, []);
 
@@ -196,10 +221,17 @@ module.exports = sourceArea => {
 
                   // now it's decided that an export should happen
 
-                  var tweetText; // ← always ends with a space
+                  var tweetText = '\u{1f4be} ' + sourceArea + ' → ';
+                  // now `tweetText` ends with a space
                   if( decoded.subj ){
-                     tweetText = decoded.subj + ' ';
-                  } else tweetText = '(Fidonet message without a subject) ';
+                     tweetText += fiunis.decode( decoded.subj );
+                  } else tweetText += '(Fidonet message without a subject)';
+                  // now `tweetText` does not end with a space
+                  if( tweetText.length > wrappedData.textLimit ){
+                     tweetText = tweetText.slice(
+                        0, wrappedData.textLimit - 1
+                     ) + '…';
+                  }
 
                   async.waterfall([
                      // message's text decoding:
@@ -259,11 +291,11 @@ module.exports = sourceArea => {
                                  subj: decoded.subj ?
                                     fiunis.decode( decoded.subj ) : '',
                                  URL: itemFGHIURL,
-                                 twitterUser: twiUsername
+                                 twitterUser: wrappedData.twiUsername
                               },
                               (err, IPFSURL) => {
                                  if( err ) return callback(err);
-                                 msgExports.push( tweetText + IPFSURL );
+                                 msgExports.push( tweetText + ' ' + IPFSURL );
                                  return callback(null);
                               }
                            );
