@@ -6,6 +6,7 @@ var async = require('async');
 var cl = require('ciel');
 var fidoconfig = require('fidoconfig');
 var FidoMail2IPFS = require('fidomail2ipfs');
+var file2MSGID = require('find-msgid-in-file');
 var fiunis = require('fiunis');
 var IPFSAPI = require('ipfs-api');
 var JAM = require('fidonet-jam');
