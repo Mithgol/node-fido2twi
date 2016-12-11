@@ -22,7 +22,7 @@
    "fiunis": "~2.1.3",
    "ipfs-api": "~12.0.3",
    "simteconf": "~0.7.0",
-   "twitter": "~1.5.0",
+   "twitter": "~1.6.0",
    "uue2ipfs": "~0.1.0"
 },
 "scripts": {
