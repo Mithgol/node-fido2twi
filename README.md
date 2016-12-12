@@ -38,6 +38,12 @@ You may now move that directory (for example, on a flash drive) across syst
 
 Unlike the above (`npm -g`), the application does not appear in the `PATH`, and thus you'll have to run it directly from the application's directory. You'll also have to run `node fido2twi [parameters]` instead of `fido2twi [parameters]`.
 
+### An optional dependency
+
+After the installation you may receive an npm warning saying that `node-webcrypto-ossl` (an optional dependency of [JavaScript IPFS API](https://github.com/ipfs/js-ipfs-api)) could not be installed. It happens if you do not have [C++ build tools for Windows](https://github.com/felixrieseberg/windows-build-tools) (or their Linux or macOS counterparts) required to build that dependency on your system, or if such tools are incomplete or outdated.
+
+Ignore the warning. The dependency is optional and IPFS API is able to work without it.
+
 ## Configuration steps
 
 1. Visit https://apps.twitter.com/ and register an application. You may use “fido2twi” as the application's name and https://github.com/Mithgol/node-fido2twi/ as its site. The application must have the default “Read and Write” permissions (“Read only” won't suffice) because it posts messages to Twitter.
