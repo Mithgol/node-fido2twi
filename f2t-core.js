@@ -78,7 +78,125 @@ var putLastReadToFile = (filename, arrLastRead) => fs.writeFileSync(
    {encoding: 'utf8'}
 );
 
-module.exports = sourceArea => {
+
+var generateTweetExport = (
+   msgExports, twiUsername, sourceArea, echobase, header, decoded, textLimit,
+   itemFGHIURL, hostIPFS, portIPFS, exportDone
+) => {
+   var tweetText = '\u{1f4be} ' + // floppy disk
+     sourceArea.replace(
+        /\./g, '\u{1f538}' // small orange diamond
+   ) + ' \u27a1 '; // “black” rightwards arrow
+   // now `tweetText` ends with a space
+   if( decoded.subj ){
+      tweetText += fiunis.decode( decoded.subj );
+   } else tweetText += '(Fidonet message without a subject)';
+   // now `tweetText` does not end with a space
+   if( tweetText.length > textLimit ) tweetText = tweetText.slice(
+      0, textLimit - 1
+   ) + '…';
+
+   async.waterfall([
+      // message's text decoding:
+      callback => echobase.decodeMessage(header, callback),
+      // search for the message's original address and avatar:
+      (messageText, callback) => echobase.getOrigAddr(
+         header,
+         (origErr, origAddr) => {
+            if( origErr ) return callback(origErr);
+
+            var avatarsList = echobase.getAvatarsForHeader(
+               header, ['https', 'http'], {
+                  size: csspxAvatarWidth * 2, //retina pixels
+                  origAddr: origAddr
+            });
+            if( avatarsList.length < 1 ) avatarsList = [
+               'https://secure.gravatar.com/avatar/?f=y&d=mm&s=' +
+               ( csspxAvatarWidth * 2 ) //retina pixels
+            ];
+
+            return callback(null, {
+               messageText: messageText,
+               origAddr: origAddr,
+               avatarURL: avatarsList[0]
+            });
+         }
+      ),
+      // got `messageText` and `origAddr` and avatar; storing…
+      (wrapped, callback) => UUE2IPFS.UUE2IPFS(
+         wrapped.messageText,
+         (fileData, fileDone) => fileDone(null, [
+            '![(',
+            fileData.name.replace(/]/g, '\\]'),
+            ')](fs:/ipfs/', fileData.hash, ')'
+         ].join('')),
+         {
+            API: IPFSAPI(hostIPFS, portIPFS),
+            filterMIME: UUE2IPFS.imgMIME()
+         },
+         (err, convertedText) => {
+            if( err ) return callback(err);
+
+            FidoMail2IPFS(
+               {
+                  server: hostIPFS,
+                  port: portIPFS,
+                  messageText: convertedText,
+                  avatarWidth: csspxAvatarWidth,
+                  avatarURL: wrapped.avatarURL,
+                  from: decoded.from || '',
+                  origAddr: wrapped.origAddr,
+                  to: decoded.to || '',
+                  origTime: decoded.origTime,
+                  procTime: decoded.procTime,
+                  subj: decoded.subj ? fiunis.decode( decoded.subj ) : '',
+                  URL: itemFGHIURL,
+                  twitterUser: twiUsername
+               },
+               (err, IPFSURL) => {
+                  if( err ) return callback(err);
+                  msgExports.push( tweetText + ' ' + IPFSURL );
+                  return callback(null);
+               }
+            );
+         }
+      )
+   ], exportDone); // `exportDone` receives an error or null
+};
+
+var postTweetFromMessage = (
+   msgFilePath, echobase, sourceArea, textLimit,
+   twiUsername, hostIPFS, portIPFS,
+   callback // (error, arrExports, nullLastRead)
+) => file2MSGID(msgFilePath, (err, MSGID) => {
+   if( err ) return callback(err);
+   if( MSGID === null ){
+      cl.fail('MSGID is not found in the given file.');
+      process.exit(1);
+   }
+   echobase.headersForMSGID(MSGID, (err, headers) => {
+      if( err ) return callback(err);
+      if( !Array.isArray(headers) || headers.length < 1 ){
+         cl.fail(`Cannot find a message in ${sourceArea} by its MSGID.`);
+         process.exit(1);
+      }
+      var theHeader = headers[headers.length - 1];
+      var theDecoded = echobase.decodeHeader(theHeader);
+      var theExportsArray = [];
+      var itemFGHIURL = generateMessageFGHIURL(
+         sourceArea, theDecoded.msgid, theDecoded.origTime
+      );
+
+      generateTweetExport(
+         theExportsArray, twiUsername, sourceArea, echobase,
+         theHeader, theDecoded, textLimit,
+         itemFGHIURL, hostIPFS, portIPFS,
+         err => callback(err, theExportsArray, null)
+      );
+   });
+});
+
+module.exports = (sourceArea, options) => {
    var confF2T = simteconf(
       path.resolve(__dirname, 'fido2twi.config'),
       { skipNames: ['//', '#'] }
@@ -174,6 +292,12 @@ module.exports = sourceArea => {
       },
       (wrappedData, callback) => {//generate an array of tweet texts
          var echobase = wrappedData.echobase;
+
+         if( options.msgFilePath !== null ) return postTweetFromMessage(
+            options.msgFilePath, echobase, sourceArea, wrappedData.textLimit,
+            wrappedData.twiUsername, hostIPFS, portIPFS, callback
+         );
+
          var echosize = echobase.size();
          if( echosize < 1 ) return callback(null, []);
 
@@ -221,91 +345,12 @@ module.exports = sourceArea => {
                   ) return exportDone(null); // do not re-export to Twitter
 
                   // now it's decided that an export should happen
-
-                  var tweetText = '\u{1f4be} ' + // floppy disk
-                    sourceArea.replace(
-                       /\./g, '\u{1f538}' // small orange diamond
-                  ) + ' \u27a1 '; // “black” rightwards arrow
-                  // now `tweetText` ends with a space
-                  if( decoded.subj ){
-                     tweetText += fiunis.decode( decoded.subj );
-                  } else tweetText += '(Fidonet message without a subject)';
-                  // now `tweetText` does not end with a space
-                  if( tweetText.length > wrappedData.textLimit ){
-                     tweetText = tweetText.slice(
-                        0, wrappedData.textLimit - 1
-                     ) + '…';
-                  }
-
-                  async.waterfall([
-                     // message's text decoding:
-                     callback => echobase.decodeMessage(header, callback),
-                     // search for the message's original address and avatar:
-                     (messageText, callback) => echobase.getOrigAddr(
-                        header,
-                        (origErr, origAddr) => {
-                           if( origErr ) return callback(origErr);
-
-                           var avatarsList = echobase.getAvatarsForHeader(
-                              header, ['https', 'http'], {
-                                 size: csspxAvatarWidth * 2, //retina pixels
-                                 origAddr: origAddr
-                           });
-                           if( avatarsList.length < 1 ) avatarsList = [
-                              'https://secure.gravatar.com/avatar/?f=y&d=mm' +
-                              '&s=' + ( csspxAvatarWidth * 2 ) //retina pixels
-                           ];
-
-                           return callback(null, {
-                              messageText: messageText,
-                              origAddr: origAddr,
-                              avatarURL: avatarsList[0]
-                           });
-                        }
-                     ),
-                     // got `messageText` and `origAddr` and avatar; storing…
-                     (wrapped, callback) => UUE2IPFS.UUE2IPFS(
-                        wrapped.messageText,
-                        (fileData, fileDone) => fileDone(null,
-                           [
-                              '![(',
-                              fileData.name.replace(/]/g, '\\]'),
-                              ')](fs:/ipfs/', fileData.hash, ')'
-                           ].join('')
-                        ),
-                        {
-                           API: IPFSAPI(hostIPFS, portIPFS),
-                           filterMIME: UUE2IPFS.imgMIME()
-                        },
-                        (err, convertedText) => {
-                           if( err ) return callback(err);
-
-                           FidoMail2IPFS(
-                              {
-                                 server: hostIPFS,
-                                 port: portIPFS,
-                                 messageText: convertedText,
-                                 avatarWidth: csspxAvatarWidth,
-                                 avatarURL: wrapped.avatarURL,
-                                 from: decoded.from || '',
-                                 origAddr: wrapped.origAddr,
-                                 to: decoded.to || '',
-                                 origTime: decoded.origTime,
-                                 procTime: decoded.procTime,
-                                 subj: decoded.subj ?
-                                    fiunis.decode( decoded.subj ) : '',
-                                 URL: itemFGHIURL,
-                                 twitterUser: wrappedData.twiUsername
-                              },
-                              (err, IPFSURL) => {
-                                 if( err ) return callback(err);
-                                 msgExports.push( tweetText + ' ' + IPFSURL );
-                                 return callback(null);
-                              }
-                           );
-                        }
-                     )
-                  ], exportDone); // `exportDone` receives an error or null
+                  generateTweetExport(
+                     msgExports, wrappedData.twiUsername,
+                     sourceArea, echobase, header, decoded,
+                     wrappedData.textLimit,
+                     itemFGHIURL, hostIPFS, portIPFS, exportDone
+                  );
                });
             },
             // `true` if should stop exporting:
@@ -316,16 +361,15 @@ module.exports = sourceArea => {
          );
       },
       (msgExports, newLastRead, finishedExportToTwitter) => {
+         // `newLastRead` may be not an Array, e.g. after single message post
          var lastIDX = msgExports.length - 1;
          async.eachOfSeries(
             msgExports.reverse(), // restore chronological order
             (nextMessage, messageIDX, sentToTwitter) => {
                twi.post(
                   'statuses/update',
-                  {
-                     status: nextMessage
-                  },
-                  (err /* , tweet, response */) => {
+                  { status: nextMessage },
+                  err => {
                      if( err ) return sentToTwitter(err);
 
                      cl.ok(nextMessage);
