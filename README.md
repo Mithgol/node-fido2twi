@@ -67,6 +67,8 @@ Ignore the warning. The dependency is optional and IPFS API is able to wo
 
 ## Using fido2twi
 
+### Posting recent messages from an echomail area
+
 You may run the installed application by typing in the command line:
 
 `fido2twi sourceArea`
@@ -76,6 +78,18 @@ It uses the following parameter:
 * `sourceArea` — the name (echotag) of an echomail area.
 
 Recent messages are found in that area and then a heading of each message is separately posted as a tweet (a microblog entry) in Twitter.
+
+### Posting an individual message
+
+You may post one individual message by the following command:
+
+`fidotwi sourceArea --msg=filename`
+
+where `sourceArea` is the name (echotag) of an echomail area and `filename` is the full path to a file containing a message from that area. That message becomes posted as a tweet (a microblog entry) in Twitter.
+
+* `SkipBySubj` configuration lines are ignored in this mode and reposts of messages generated from Twitter are also allowed.
+
+* This parameter's format is designed for `fido2twi` to be called as an external tool from Fidonet editors that can export a message (currently being read) and call a tool to process that message (passing the echotag and the message's path in the command line).
 
 ## Testing fido2twi
 

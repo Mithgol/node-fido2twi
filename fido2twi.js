@@ -30,8 +30,8 @@ if( params.length < 1 ){
    clog('sourceArea  -- areatag of an echomail area in Fidonet');
    clog('');
    clog('An optional "--msg=filename" parameter (before or after the above)');
-   clog('means that a single message (contained in the given file) becomes');
-   clog('tweeted from the given echomail area.');
+   clog('means that an individual message (contained in the given file)');
+   clog('becomes tweeted from the given echomail area.');
    process.exit(1);
 }
 
