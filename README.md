@@ -2,7 +2,7 @@
 
 This application (`fido2twi`) posts headings (“subjects”) of Fidonet messages to Twitter. (Its name is derived from loosely abbreviated words “Fido to Twitter”. It does not imply any endorsement, sponsorship, or association with Twitter.)
 
-In the posted tweet (microblog entry) the Fidonet message's subject is followed by a (space-separated) URL, creating a hyperlink to that message. However, unfortunately, Twitter does not understand the schemes of [FGHI URL](https://github.com/Mithgol/FGHI-URL/) format for Fidonet URLs. Therefore an intermediate web page (containing the necessary FGHI URL and the Fidonet message) is automatically generated, and stored in [IPFS](https://ipfs.io/) (the InterPlanetary File System), and then hyperlinked from the tweet.
+In the text of the posted tweet (i.e. of the microblog entry) the Fidonet message's subject is followed by a (space-separated) URL, creating a hyperlink to that message. However, unfortunately, Twitter does not understand the schemes of [FGHI URL](https://github.com/Mithgol/FGHI-URL/) format for Fidonet URLs. Therefore an intermediate web page (containing the necessary FGHI URL and the Fidonet message) is automatically generated, and stored in [IPFS](https://ipfs.io/) (the InterPlanetary File System), and then hyperlinked from the tweet.
 
 Currently this application is not designed to send the “extended” version of tweets that was introduced in the announcements “[Coming soon: express even more in 140 characters](https://blog.twitter.com/express-even-more-in-140-characters)” and “[Doing more with 140 characters](https://blog.twitter.com/2016/doing-more-with-140-characters)” in 2016. However, it would not make any difference because IPFS URLs are not eligible to appear in the endings of “extended” tweets anyway.
 
@@ -89,7 +89,9 @@ where `sourceArea` is the name (echotag) of an echomail area and `filename` i
 
 * `SkipBySubj` configuration lines are ignored in this mode and reposts of messages generated from Twitter are also allowed.
 
-* This parameter's format is designed for `fido2twi` to be called as an external tool from Fidonet editors that can export a message (currently being read) and call a tool to process that message (passing the echotag and the message's path in the command line).
+* This parameter's format is designed for `fido2twi` to be called as an external tool from Fidonet editors that can export a message (currently being read) and call a tool to process that message (passing the echotag and the message's path in the command line). An example of one such configuration (for the editor family of GoldED and GoldED+ and GoldED-NSF) is given below (in the next subsection).
+
+* Some compatibility of fido2twi with many possible export formats is ensured because fido2twi does not read the Fidonet message from the file (given in `--msg=filename`) before tweeting. Only the message's MSGID is read from that file and subsequently used by fido2twi to look for the original Fidonet message in a JAM message base. Therefore the original message is used and the format of the exported message does not matter as long as it keeps MSGID intact (i.e. does not violate the [FTS-0009.001](http://ftsc.org/docs/fts-0009.001) standard).
 
 #### Launching fido2twi from GoldED
 

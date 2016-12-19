@@ -37,6 +37,8 @@ if( params.length < 1 ){
 
 const sourceArea = params[0];
 
-cl.status(`Looking in ${sourceArea} for tweets...`);
+if( msgFilePath !== null ){
+   cl.status(`Posting an individual message from ${sourceArea}...`);
+} else cl.status(`Looking in ${sourceArea} for tweets...`);
 
 require('./f2t-core.js')(sourceArea, { msgFilePath: msgFilePath });

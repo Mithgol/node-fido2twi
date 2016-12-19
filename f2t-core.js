@@ -393,8 +393,12 @@ module.exports = (sourceArea, options) => {
 
                var numTweets = msgExports.length;
                if( numTweets > 0 ){
-                  cl.status(`${numTweets} tweets posted from ${sourceArea}.`);
-               } else cl.skip(`No new tweets posted from ${sourceArea}.`);
+                  cl.status(
+                     `Done. ${numTweets} tweets posted from ${sourceArea}.`
+                  );
+               } else cl.skip(
+                  `Done. No new tweets posted from ${sourceArea}.`
+               );
 
                return finishedExportToTwitter(null);
             }
