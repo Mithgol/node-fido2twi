@@ -91,6 +91,34 @@ where `sourceArea` is the name (echotag) of an echomail area and `filename` i
 
 * This parameter's format is designed for `fido2twi` to be called as an external tool from Fidonet editors that can export a message (currently being read) and call a tool to process that message (passing the echotag and the message's path in the command line).
 
+#### Launching fido2twi from GoldED
+
+You can configure fido2twi to be used as a poster of Fidonet messages to Twitter that is launched (by a hotkey) from any version of GoldED (for example, for GoldED+ or GoldED-NSF).
+
+Two lines have to be added to configuration files of GoldED to enable launching of fido2twi.
+
+The first additional line has to be added in the main GoldED's configuration file (usually called `golded.cfg` or `gedcyg.cfg`); this line defines a new external utility (18th in this example).
+
+To launch a global installation of fido2twi, use the following line:
+
+    ExternUtil 18 -Cls -Cursor -Pause fido2twi "@cecho" "--msg=@file"
+
+To launch a local installation of fido2twi, use the following line:
+
+    ExternUtil 18 -Cls -Cursor -Pause node \path\to\fido2twi\fido2twi "@cecho" "--msg=@file"
+
+* Substitute `\path\to\fido2twi` with the real path that leads to fido2twi on your system.
+
+* If not on Windows, `/` instead of `\` is likely to be used in your paths.
+
+* ExternUtil parameter `-Cls` clears the screen, `-Cursor` shows the cursor, `-Pause` waits for a keyboard input before returning to GoldED (and thus fido2twi errors can be read, if any).
+
+The second additional line has to be added in the GoldED's hotkey configuration file (usually `goldkeys.cfg`); this line defines a hotkey for the utility (`Shift+F12` in this example):
+
+    #F12  ExternUtil18
+
+Afterwards press Shift+F12 to launch fido2twi from GoldED. If the message that you view in GoldED has a MSGID (it usually has; see [FTS-0009.001](http://ftsc.org/docs/fts-0009.001) for details), fido2twi posts that message to Twitter; otherwise an error occurs.
+
 ## Testing fido2twi
 
 [![(build testing status)](https://img.shields.io/travis/Mithgol/node-fido2twi/master.svg?style=plastic)](https://travis-ci.org/Mithgol/node-fido2twi)
