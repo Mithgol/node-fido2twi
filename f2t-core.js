@@ -405,6 +405,9 @@ module.exports = (sourceArea, options) => {
          );
       }
    ], err => { // waterfall finished
-      if( err ) throw err;
+      if( err ){
+         cl.fail('fido2twi error:');
+         console.dir(err);
+      }
    });
 };
