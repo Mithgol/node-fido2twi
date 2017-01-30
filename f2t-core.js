@@ -148,7 +148,6 @@ var generateTweetExport = (
                   origAddr: wrapped.origAddr,
                   to: decoded.to || '',
                   origTime: decoded.origTime,
-                  procTime: decoded.procTime,
                   subj: decoded.subj ? fiunis.decode( decoded.subj ) : '',
                   URL: itemFGHIURL,
                   twitterUser: twiUsername
