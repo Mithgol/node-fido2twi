@@ -8,7 +8,7 @@ Currently this application is not designed to send the “extended” versio
 
 ## Requirements
 
-* This application (`fido2twi`) is written in JavaScript and requires [Node.js](http://nodejs.org/) to run. Some ECMAScript 2016 features are used, and thus a relatively recent Node.js (version 6.8.1 or newer) is required. The application is tested on the most recent stable version of Node.js.
+* This application (`fido2twi`) is written in JavaScript and requires [Node.js](http://nodejs.org/) to run. Some ECMAScript 2016 features are used, and thus a relatively recent Node.js (version 6.4.0 or newer) is required. The application is tested on the most recent stable version of Node.js.
 
 * Сurrently `fido2twi` requires a properly configured (and running) [IPFS](https://ipfs.io/) daemon (such as [`go-ipfs`](https://github.com/ipfs/go-ipfs/) for example) which is used by `fido2twi` as a storage of generated web pages.
 
