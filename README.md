@@ -4,13 +4,13 @@ This application (`fido2twi`) posts headings (“subjects”) of Fidonet messa
 
 In the text of the posted tweet (i.e. of the microblog entry) the Fidonet message's subject is followed by a (space-separated) URL, creating a hyperlink to that message. However, unfortunately, Twitter does not understand the schemes of [FGHI URL](https://github.com/Mithgol/FGHI-URL/) format for Fidonet URLs. Therefore an intermediate web page (containing the necessary FGHI URL and the whole Fidonet message) is automatically generated, and stored in [IPFS](https://ipfs.io/) (the InterPlanetary File System), and then hyperlinked from the tweet.
 
-Currently this application is not designed to send the “extended” version of tweets that was introduced in the announcements “[Coming soon: express even more in 140 characters](https://blog.twitter.com/express-even-more-in-140-characters)” and “[Doing more with 140 characters](https://blog.twitter.com/2016/doing-more-with-140-characters)” in 2016. However, it would not make any difference because IPFS URLs are not eligible to appear in the endings of “extended” tweets anyway.
+Currently this application is not designed to send the “extended” version of tweets that was introduced by Twitter in the announcements “[Coming soon: express even more in 140 characters](https://blog.twitter.com/express-even-more-in-140-characters)” and “[Doing more with 140 characters](https://blog.twitter.com/2016/doing-more-with-140-characters)” in 2016. However, it would not make any difference because IPFS URLs are not eligible to appear in the endings of “extended” tweets anyway.
 
 ## Requirements
 
 * This application (`fido2twi`) is written in JavaScript and requires [Node.js](http://nodejs.org/) to run. Some ECMAScript 2016 features are used, and thus a relatively recent Node.js (version 6.0.0 or newer) is required. The application is tested on the most recent stable version of Node.js.
 
-* Сurrently `fido2twi` requires a properly configured (and running) [IPFS](https://ipfs.io/) daemon (such as [`go-ipfs`](https://github.com/ipfs/go-ipfs/) for example) which is used by `fido2twi` as a storage of generated web pages.
+* Сurrently `fido2twi` requires a properly configured (and running) [IPFS](https://ipfs.io/) daemon (such as [`go-ipfs`](https://github.com/ipfs/go-ipfs/) for example) because `fido2twi` uses IPFS as a permanent storage of generated web pages.
 
 * Сurrently `fido2twi` supports only the JAM [(Joaquim-Andrew-Mats)](https://github.com/Mithgol/node-fidonet-jam/blob/master/JAM.txt) type of Fidonet message bases.
 
@@ -89,13 +89,13 @@ where `sourceArea` is the name (echotag) of an echomail area and `filename` i
 
 * `SkipBySubj` configuration lines are ignored in this mode and reposts of messages generated from Twitter are also allowed.
 
-* This parameter's format is designed for `fido2twi` to be called as an external tool from Fidonet editors that can export a message (currently being read) and call a tool to process that message (passing the echotag and the message's path in the command line). An example of one such configuration (for the editor family of GoldED and GoldED+ and GoldED-NSF) is given below (in the next subsection).
+* This parameter's format is designed for `fido2twi` to be called (by users) as an external tool from Fidonet editors that can export a message (which is currently being read by an editor's user) and call a tool to process that message (passing the echotag and the message's path in the command line). An example of one such configuration (for the editor family of GoldED and GoldED+ and GoldED-NSF) is given below (in the next subsection).
 
 * Some compatibility of fido2twi with many possible export formats is ensured because fido2twi does not read the Fidonet message from the file (given in `--msg=filename`) before tweeting. Only the message's MSGID is read from that file and subsequently used by fido2twi to look for the original Fidonet message in a JAM message base. Therefore the original message is used and the format of the exported message does not matter as long as it keeps MSGID intact (i.e. does not violate the [FTS-0009.001](http://ftsc.org/docs/fts-0009.001) standard).
 
 #### Launching fido2twi from GoldED
 
-You can configure fido2twi to be used as a poster of Fidonet messages to Twitter that is launched (by a hotkey) from any version of GoldED (for example, for GoldED+ or GoldED-NSF).
+You can configure fido2twi to be used as a poster of Fidonet messages to Twitter that is launched (by a hotkey) from any version of GoldED (for example, from GoldED+ or from GoldED-NSF).
 
 Two lines have to be added to configuration files of GoldED to enable launching of fido2twi.
 
@@ -119,7 +119,7 @@ The second additional line has to be added in the GoldED's hotkey configura
 
     #F12  ExternUtil18
 
-Afterwards press Shift+F12 to launch fido2twi from GoldED. If the message that you view in GoldED has a MSGID (it usually has; see [FTS-0009.001](http://ftsc.org/docs/fts-0009.001) for details), fido2twi posts that message to Twitter; otherwise an error occurs.
+Afterwards press Shift+F12 to launch fido2twi from GoldED. If the message that you view in GoldED has a MSGID (it usually has; see [FTS-0009.001](http://ftsc.org/docs/fts-0009.001) for details), fido2twi posts that message to Twitter; otherwise an error is displayed.
 
 ## Testing fido2twi
 
