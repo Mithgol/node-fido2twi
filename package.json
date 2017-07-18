@@ -3,7 +3,7 @@
 "bin": "./fido2twi.js",
 "preferGlobal": true,
 "main": "f2t-core.js",
-"version": "0.7.11",
+"version": "0.7.12",
 "description": "Posts Fidonet messages to Twitter.",
 "keywords": ["Fidonet", "Fido", "Twitter"],
 "author": { "name": "Mithgol the Webmaster" },
@@ -13,17 +13,17 @@
    "url": "https://github.com/Mithgol/node-fido2twi.git"
 },
 "dependencies": {
-   "async": "~2.4.0",
+   "async": "~2.5.0",
    "ciel": "~0.3.0",
    "fidoconfig": "~1.0.0",
-   "fidomail2ipfs": "~0.3.6",
+   "fidomail2ipfs": "~0.3.11",
    "fidonet-jam": "~4.0.0",
    "find-msgid-in-file": "~0.1.0",
    "fiunis": "~3.0.0",
    "ipfs-api": "~14.0.0",
    "simteconf": "~1.0.0",
    "twitter": "~1.7.0",
-   "uue2ipfs": "~0.1.4"
+   "uue2ipfs": "~0.1.5"
 },
 "scripts": {
    "test": "jshint --verbose fido2twi.js f2t-core.js"
