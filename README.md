@@ -123,7 +123,7 @@ Afterwards press Shift+F12 to launch fido2twi from GoldED. If the message tha
 
 ## Contents (and lengths) of tweets
 
-The text of each tweet (each microblog entry) contains the following elements (in order of appearance):
+The text of each tweet (each microblog entry) posted by `fido2twi` contains the following elements (in order of appearance):
 
 * **Diskette icon.** Always the character “💾” (Unicode U+1F4BE) followed by a whitespace, 2 characters total.
 
@@ -131,11 +131,11 @@ The text of each tweet (each microblog entry) contains the following element
 
 * **Rightwards arrow.** Always the character “➡” (Unicode U+27A1) surrounded by whitespaces, 3 characters total. **Optional** (see below).
 
-* **Areatag of the echomail area.** Its length is not limited. Mid-2017 echolists contain echomail areas with areatags 23 characters long (for example, `Ru.Pictures.Psevdo.Graf` or `SU.Hardw.PC.Motherboard`). All dots (“.” characters) are replaced by small orange diamonds (“🔸”, Unicode U+1F538) because Twitter understands dot-separated words as domain names.
+* **Areatag of the echomail area.** Its length is not limited. Mid-2017 echolists contain several echomail areas with areatags 23 characters long (for example, `Ru.Pictures.Psevdo.Graf` or `SU.Hardw.PC.Motherboard`). All dots (“.” characters) are replaced by small orange diamonds (“🔸”, Unicode U+1F538) because Twitter understands dot-separated words as domain names.
 
 * **Rightwards arrow.** Always the character “➡” (Unicode U+27A1) surrounded by whitespaces, 3 characters total.
 
-* **Echomail message's title.** According to [FTS-0001.016](http://ftsc.org/docs/fts-0001.016) standard of packed messages, the subject's length is never larger than 71 characters (to fit in 72 bytes of a null-terminated string). [Fidonet Unicode substrings](https://github.com/Mithgol/fiunis) are supported (i.e. decoded) in the subject (for example, emoji from echomail titles would appear in Twitter).
+* **Echomail message's title,** also known as **subject.** According to [FTS-0001.016](http://ftsc.org/docs/fts-0001.016) standard of packed messages, the subject's length is never larger than 71 characters (to fit in 72 bytes of a null-terminated string). [Fidonet Unicode substrings](https://github.com/Mithgol/fiunis) are supported (i.e. decoded) in the subject (for example, emoji from echomail titles would appear in Twitter).
 
 * **A whitespace,** 1 character.
 
@@ -147,7 +147,7 @@ If the resulting length exceeds the limit, the text is regenerated without t
 
 If the regenerated text is still longer than 140 characters, the message's title is cropped until everything fits (including the character “…” that is added after the crop).
 
-This precaution allows echomail areatags to grow significantly larger than 23 characters (for example, in mail lists originating from the Internet though a Fidonet-based gate system) without breaking anything. One such example is an echotag `RU.LIST.CITYCAT.CULTURE.MUSIC.ANNOUNCE.FANTASYNEWS`, 50 characters long, that has been observed in mid-2002; it represented a mail list which now (mid-2017) resides at https://subscribe.ru/catalog/culture.music.announce.fantasynews and seems closed since 2009.
+This precaution allows echomail areatags to grow significantly larger than 23 characters (for example, in mail lists originating from the Internet though a Fidonet-based gate system) without breaking anything. One such example is an echotag `RU.LIST.CITYCAT.CULTURE.MUSIC.ANNOUNCE.FANTASYNEWS`, 50 characters long, that has been observed in mid-2002; it represented a mail list which (since then) migrated from CityCat to https://subscribe.ru/catalog/culture.music.announce.fantasynews and is said to be closed in 2009.
 
 ## Testing fido2twi
 

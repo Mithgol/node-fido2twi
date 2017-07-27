@@ -3,7 +3,7 @@
 "bin": "./fido2twi.js",
 "preferGlobal": true,
 "main": "f2t-core.js",
-"version": "0.7.13",
+"version": "0.8.0",
 "description": "Posts Fidonet messages to Twitter.",
 "keywords": ["Fidonet", "Fido", "Twitter"],
 "author": { "name": "Mithgol the Webmaster" },
@@ -23,6 +23,7 @@
    "ipfs-api": "~14.1.0",
    "simteconf": "~1.0.0",
    "twitter": "~1.7.0",
+   "underscore.string": "~3.3.4",
    "uue2ipfs": "~0.1.5"
 },
 "scripts": {

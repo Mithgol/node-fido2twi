@@ -14,9 +14,17 @@ var simteconf = require('simteconf');
 var twitter = require('twitter');
 var UUE2IPFS = require('uue2ipfs');
 
+var pad = require('underscore.string/pad');
+
 var maxExports = 20;
 var twiDelay = 1000 * 60 * 2; // 2 min
 var csspxAvatarWidth = 140;
+
+var dtArrayToDateString = dtArray => [
+   dtArray[0], '-',
+   pad(dtArray[1], 2, '0'), '-',
+   pad(dtArray[2], 2, '0')
+].join('');
 
 var MSGID4URL = someMSGID => someMSGID.split(
    /([A-Za-z01-9:/]+)/   // ← these characters are already fine
@@ -84,16 +92,34 @@ var generateTweetExport = (
    itemFGHIURL, hostIPFS, portIPFS, exportDone
 ) => {
    var tweetText = '\u{1f4be} ' + // floppy disk
-     sourceArea.replace(
-        /\./g, '\u{1f538}' // small orange diamond
+      dtArrayToDateString(decoded.origTime) +
+      ' \u27a1 ' + // “black” rightwards arrow
+      sourceArea.replace(
+         /\./g, '\u{1f538}' // small orange diamond
    ) + ' \u27a1 '; // “black” rightwards arrow
    // now `tweetText` ends with a space
    if( decoded.subj ){
       tweetText += fiunis.decode( decoded.subj );
    } else tweetText += '(Fidonet message without a subject)';
    // now `tweetText` does not end with a space
+
+   if( tweetText.length > textLimit ){ // regenerate a shorter text
+      tweetText = '\u{1f4be} ' + // floppy disk
+         sourceArea.replace(
+            /\./g, '\u{1f538}' // small orange diamond
+      ) + ' \u27a1 '; // “black” rightwards arrow
+      // now `tweetText` ends with a space
+      if( decoded.subj ){
+         tweetText += fiunis.decode( decoded.subj );
+      } else tweetText += '(Fidonet message without a subject)';
+      // now `tweetText` does not end with a space
+   }
+
+   // if even a shorter text does not fit, crop it:
    if( tweetText.length > textLimit ) tweetText = tweetText.slice(
       0, textLimit - 1
+   ).replace(
+      /[\uD800-\uDBFF]$/g, '' // kill a trailing high surrogate, if any
    ) + '…';
 
    async.waterfall([
