@@ -121,6 +121,34 @@ The second additional line has to be added in the GoldED's hotkey configura
 
 Afterwards press Shift+F12 to launch fido2twi from GoldED. If the message that you view in GoldED has a MSGID (it usually has; see [FTS-0009.001](http://ftsc.org/docs/fts-0009.001) for details), fido2twi posts that message to Twitter; otherwise an error is displayed.
 
+## Contents (and lengths) of tweets
+
+The text of each tweet (each microblog entry) contains the following elements (in order of appearance):
+
+* **Diskette icon.** Always the character “💾” (Unicode U+1F4BE) followed by a whitespace, 2 characters total.
+
+* **Date.** Always has the form `YYYY-MM-DD` (for example, `2017-07-27`), 10 characters total. **Optional** (see below).
+
+* **Rightwards arrow.** Always the character “➡” (Unicode U+27A1) surrounded by whitespaces, 3 characters total. **Optional** (see below).
+
+* **Areatag of the echomail area.** Its length is not limited. Mid-2017 echolists contain echomail areas with areatags 23 characters long (for example, `Ru.Pictures.Psevdo.Graf` or `SU.Hardw.PC.Motherboard`). All dots (“.” characters) are replaced by small orange diamonds (“🔸”, Unicode U+1F538) because Twitter understands dot-separated words as domain names.
+
+* **Rightwards arrow.** Always the character “➡” (Unicode U+27A1) surrounded by whitespaces, 3 characters total.
+
+* **Echomail message's title.** According to [FTS-0001.016](http://ftsc.org/docs/fts-0001.016) standard of packed messages, the subject's length is never larger than 71 characters (to fit in 72 bytes of a null-terminated string). [Fidonet Unicode substrings](https://github.com/Mithgol/fiunis) are supported (i.e. decoded) in the subject (for example, emoji from echomail titles would appear in Twitter).
+
+* **A whitespace,** 1 character.
+
+* **IPFS URL** of the message. Twitter performs URL shortening of it, mid-2017 shortened URLs are 23 characters long (longer URLs may be generated in the future for the future tweets).
+
+The typical resulting length is 2 + 10 + 3 + 23 + 3 + 71 + 1 + 23 = 136, and thus barely fits in the Twitter's famous limit (140 characters).
+
+If the resulting length exceeds the limit, the text is regenerated without the optional elements (without the date and without the following rightwards arrow), allowing 13 more characters in other elements (larger URLs in the future or larger areatags).
+
+If the regenerated text is still longer than 140 characters, the message's title is cropped until everything fits (including the character “…” that is added after the crop).
+
+This precaution allows echomail areatags to grow significantly larger than 23 characters (for example, in mail lists originating from the Internet though a Fidonet-based gate system) without breaking anything. One such example is an echotag `RU.LIST.CITYCAT.CULTURE.MUSIC.ANNOUNCE.FANTASYNEWS`, 50 characters long, that has been observed in mid-2002; it represented a mail list which now (mid-2017) resides at https://subscribe.ru/catalog/culture.music.announce.fantasynews and seems closed since 2009.
+
 ## Testing fido2twi
 
 [![(build testing status)](https://img.shields.io/travis/Mithgol/node-fido2twi/master.svg?style=plastic)](https://travis-ci.org/Mithgol/node-fido2twi)
