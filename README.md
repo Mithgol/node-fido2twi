@@ -46,6 +46,8 @@ Ignore the warning. The dependency is optional and IPFS API is able to wo
 
 ## Configuration steps
 
+It is necessary to configure `fido2twi` before you run it. (For example, you cannot use [`npx`](https://github.com/zkat/npx) to run `npx fido2twi` without having to install `fido2twi` permanently.) You can configure `fido2twi` by performing the following simple steps:
+
 1. Visit https://apps.twitter.com/ and register an application. You may use “fido2twi” as the application's name and https://github.com/Mithgol/node-fido2twi/ as its site. The application must have the default “Read and Write” permissions (“Read only” won't suffice) because it posts messages to Twitter.
 
 2. Create an access token.
