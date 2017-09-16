@@ -137,7 +137,7 @@ The text of each tweet (each microblog entry) posted by `fido2twi` contains 
 
 * **Rightwards arrow.** Always the character “➡” (Unicode U+27A1) surrounded by whitespaces, 3 characters total.
 
-* **Echomail message's title,** also known as **subject.** According to [FTS-0001.016](http://ftsc.org/docs/fts-0001.016) standard of packed messages, the subject's length is never larger than 71 characters (to fit in 72 bytes of a null-terminated string). [Fidonet Unicode substrings](https://github.com/Mithgol/fiunis) are supported (i.e. decoded) in the subject (for example, [emoji](https://en.wikipedia.org/wiki/Emoji) from echomail titles would appear in Twitter).
+* **Echomail message's title,** also known as **subject.** According to [FTS-0001.016](http://ftsc.org/docs/fts-0001.016) standard of packed messages, the subject's length is never larger than 71 characters (to fit in 72 bytes of a null-terminated string). [Fidonet Unicode substrings](https://github.com/Mithgol/fiunis) are supported (i.e. decoded) in the subject (for example, [emoji](https://en.wikipedia.org/wiki/Emoji) from echomail titles would appear in Twitter). It is possible to use Twitter-specific markup elements ([#keyword hashtags](https://support.twitter.com/articles/49309), [@username mentions](https://support.twitter.com/articles/14023), [$company cashtags](https://support.twitter.com/articles/166337), etc.) in echomail messages' titles, they'll appear in resulting tweets.
 
 * **A whitespace,** 1 character.
 
