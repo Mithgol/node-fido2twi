@@ -4,7 +4,9 @@ This application (`fido2twi`) posts headings (“subjects”) of Fidonet messa
 
 In the text of the posted tweet (i.e. of the microblog entry) the Fidonet message's subject is followed by a (space-separated) URL, creating a hyperlink to that message. However, unfortunately, Twitter does not understand the schemes of [FGHI URL](https://github.com/Mithgol/FGHI-URL/) format for Fidonet URLs. Therefore an intermediate web page (containing the necessary FGHI URL and the whole Fidonet message) is automatically generated, and stored in [IPFS](https://ipfs.io/) (the InterPlanetary File System), and then hyperlinked from the tweet.
 
-Currently this application is not designed to send the “extended” version of tweets that was introduced by Twitter in the announcements “[Coming soon: express even more in 140 characters](https://blog.twitter.com/express-even-more-in-140-characters)” and “[Doing more with 140 characters](https://blog.twitter.com/2016/doing-more-with-140-characters)” in 2016. However, it would not make any difference because IPFS URLs are not eligible to appear in the endings of “extended” tweets anyway.
+Currently this application is not designed to send the “extended” version of tweets that has been introduced by Twitter in the announcements “[Coming soon: express even more in 140 characters](https://blog.twitter.com/express-even-more-in-140-characters)” and “[Doing more with 140 characters](https://blog.twitter.com/2016/doing-more-with-140-characters)” in 2016. However, it would not make any difference because IPFS URLs are not eligible to appear in the endings of “extended” tweets anyway.
+
+Currently this application is not designed to send the longer version of tweets that has been introduced by Twitter in the announcement “[Giving you more characters to express yourself](https://blog.twitter.com/official/en_us/topics/product/2017/Giving-you-more-characters-to-express-yourself.html)” in 2017 because that version is still being tested by Twitter (and therefore most microbloggers don't even have any access to it).
 
 ## Requirements
 
@@ -16,7 +18,7 @@ Currently this application is not designed to send the “extended” versio
 
 * Сurrently `fido2twi` uses [HPT](http://husky.sourceforge.net/hpt.html)'s area configuration file as the description of echomail areas.
 
-* Сurrently `fido2twi` does not create any lock files, not does it lock files in use. Users themselves have to prevent their echoprocessors (tossers) or mail editors from running when `fido2twi` is active.
+* Сurrently `fido2twi` does not create any lock files, it also does not lock the files that it uses. Users themselves have to prevent their echoprocessors (tossers) or mail editors from running when `fido2twi` is active.
 
 ## Installing fido2twi
 
