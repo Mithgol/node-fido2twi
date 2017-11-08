@@ -6,7 +6,7 @@ In the text of the posted tweet (i.e. of the microblog entry) the Fidone
 
 Currently this application is not designed to send the “extended” version of tweets that has been introduced by Twitter in the announcements “[Coming soon: express even more in 140 characters](https://blog.twitter.com/express-even-more-in-140-characters)” and “[Doing more with 140 characters](https://blog.twitter.com/2016/doing-more-with-140-characters)” in 2016. However, it would not make any difference because IPFS URLs are not eligible to appear in the endings of “extended” tweets anyway.
 
-Currently this application is not designed to send the longer version of tweets that has been introduced by Twitter in the announcement “[Giving you more characters to express yourself](https://blog.twitter.com/official/en_us/topics/product/2017/Giving-you-more-characters-to-express-yourself.html)” in 2017 because that version is still being tested by Twitter (and therefore most microbloggers don't even have any access to it, including the author of `fido2twi`).
+Currently this application is not designed to send the longer version of tweets that has been introduced by Twitter in the announcement “[Tweeting Made Easier](https://blog.twitter.com/official/en_us/topics/product/2017/tweetingmadeeasier.html)” in 2017 because the corresponding update of [`twitter-text`](https://www.npmjs.com/package/twitter-text) is [not published yet](https://twittercommunity.com/t/updating-the-character-limit-and-the-twitter-text-library/96425) (and that update seems to be required for correct counting of characters in the new version).
 
 ## Requirements
 
