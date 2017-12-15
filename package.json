@@ -23,11 +23,9 @@
    "ipfs-api": "~17.2.0",
    "simteconf": "~1.0.0",
    "twitter": "~1.7.0",
+   "twitter-text": "~2.0.0",
    "underscore.string": "~3.3.4",
    "uue2ipfs": "~0.1.8"
-},
-"devDependencies": {
-   "twitter-text": "1.14.7"
 },
 "scripts": {
    "test": "jshint --verbose fido2twi.js f2t-core.js"
