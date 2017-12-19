@@ -12,6 +12,7 @@ var IPFSAPI = require('ipfs-api');
 var JAM = require('fidonet-jam');
 var simteconf = require('simteconf');
 var twitter = require('twitter');
+var twitxt = require('twitter-text');
 var UUE2IPFS = require('uue2ipfs');
 
 var pad = require('underscore.string/pad');
@@ -86,6 +87,28 @@ var putLastReadToFile = (filename, arrLastRead) => fs.writeFileSync(
    {encoding: 'utf8'}
 );
 
+var weightedCrop = (tweetText, textLimit) => {
+   var newLength = tweetText.length;
+   var newText;
+   var does_not_fit = true;
+   // `weightedCrop` is called only when `newLength` does not fit initially
+
+   while( does_not_fit ){
+      newLength--;
+      if( newLength < 1 ){
+         cl.fail('Cannot shorten: ' + tweetText);
+         cl.status('Text limit: ' + textLimit);
+         process.exit(1);
+      }
+      newText = tweetText.slice(0, newLength).replace(
+         /[\uD800-\uDBFF]$/g, '' // kill a trailing high surrogate, if any
+      ) + '…';
+      if( twitxt.parseTweet(newText).weightedLength <= textLimit ){
+         // does_not_fit = false;
+         return newText;
+      }
+   }
+};
 
 var generateTweetExport = (
    msgExports, twiUsername, sourceArea, echobase, header, decoded, textLimit,
@@ -103,7 +126,8 @@ var generateTweetExport = (
    } else tweetText += '(Fidonet message without a subject)';
    // now `tweetText` does not end with a space
 
-   if( tweetText.length > textLimit ){ // regenerate a shorter text
+   if( twitxt.parseTweet(tweetText).weightedLength > textLimit ){
+      // regenerate a shorter text:
       tweetText = '\u{1f4be} ' + // floppy disk
          sourceArea.replace(
             /\./g, '\u{1f538}' // small orange diamond
@@ -116,11 +140,9 @@ var generateTweetExport = (
    }
 
    // if even a shorter text does not fit, crop it:
-   if( tweetText.length > textLimit ) tweetText = tweetText.slice(
-      0, textLimit - 1
-   ).replace(
-      /[\uD800-\uDBFF]$/g, '' // kill a trailing high surrogate, if any
-   ) + '…';
+   if( twitxt.parseTweet(tweetText).weightedLength > textLimit ){
+      tweetText = weightedCrop(tweetText, textLimit);
+   }
 
    async.waterfall([
       // message's text decoding:
@@ -310,7 +332,7 @@ module.exports = (sourceArea, options) => {
 
                cl.ok(`Read Twitter's configuration. HTTPS short URLs are ${
                twiConfig.short_url_length_https} characters long.`);
-               wrappedData.textLimit = 139 - twiConfig.short_url_length_https;
+               wrappedData.textLimit = 279 - twiConfig.short_url_length_https;
                return callback(null, wrappedData);
             }
          );
